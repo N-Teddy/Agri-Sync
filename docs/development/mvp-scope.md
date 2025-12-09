@@ -319,27 +319,21 @@ src/
 │   ├── users/
 │   │   ├── users.controller.ts
 │   │   ├── users.service.ts
-│   │   └── entities/
 │   ├── plantations/
 │   │   ├── plantations.controller.ts
 │   │   ├── plantations.service.ts
-│   │   └── entities/
 │   ├── fields/
 │   │   ├── fields.controller.ts
 │   │   ├── fields.service.ts
-│   │   └── entities/
 │   ├── weather/
 │   │   ├── weather.controller.ts
 │   │   ├── weather.service.ts
-│   │   └── entities/
 │   ├── activities/
 │   │   ├── activities.controller.ts
 │   │   ├── activities.service.ts
-│   │   └── entities/
 │   └── financial/
 │       ├── financial.controller.ts
 │       ├── financial.service.ts
-│       └── entities/
 ├── common/
 │   ├── filters/
 │   ├── interceptors/
