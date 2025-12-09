@@ -1,0 +1,179 @@
+---
+title: AgriSync Pro - Project Brief
+subtitle: Unified crop, climate, and financial intelligence for Cameroonian plantations
+author: AgriSync Product Team
+date: 2024
+---
+
+# AgriSync Pro Project Brief
+
+## Project Snapshot
+- **Vision**: Deliver a digital farm manager that fuses hyper-local weather, crop activity tracking, and financial insights so plantation teams can act before risks hit yield.
+- **Target users**: Cameroonian plantation owners, farm managers, and field supervisors overseeing 50–500+ hectares.
+- **Core value**: Prevent crop loss, optimize resource use, and centralize institutional knowledge through proactive, data-backed recommendations.
+- **Engagement model**: B2B2C SaaS with annual subscriptions priced by monitored hectares and a no-risk 50-hectare pilot.
+
+## Pain Points We Solve
+- **Weather uncertainty**: Regional forecasts miss micro-climate swings that ruin planting, spraying, and irrigation schedules.
+- **Reactive operations**: Pests, diseases, and water stress are discovered only after visible damage, burning labor and inputs.
+- **Resource inefficiency**: Diesel, fertilizer, and labor are wasted because timing is based on habit instead of conditions.
+- **Information silos**: Weather data, crop logs, and financial records live in disconnected notebooks or personal memory.
+
+## Solution Overview
+AgriSync Pro combines three pillars to act as a digital command center:
+1. **Hyper-local weather intelligence** – merges field boundaries, elevation data, and multiple APIs to generate field-level forecasts with actionable alerts (e.g., "Coffee Field C-4: 15 mm rain 2–4 PM tomorrow").
+2. **Integrated crop and activity management** – digital logbook with growth stage tracking, activity histories, and photo evidence to understand cause and effect across a season.
+3. **AI-powered alerting and recommendations** – evaluates weather, crop stage, and historical behavior to trigger preventive advisories (frost, disease, irrigation, harvest windows) through push/SMS.
+
+### Contextual Case Studies
+- **Banana Black Sigatoka**: Humidity >90 % and ~25 °C triggers a high-risk alert, enabling fungicide application within 24 hours, cutting chemical spend by up to 40 % and preserving 25–45 % yield.
+- **Rice irrigation (Ndop Plain)**: Evapotranspiration and soil trends flag optimal watering windows, reducing diesel 15–20 % and improving fertilizer efficiency 15–20 %.
+- **Coffee frost protection**: Field-level temperature dips prompt alerts hours ahead, saving 60–70 % of potential harvest losses.
+
+## Personas & Critical Workflows
+| Role | Responsibilities | High-Value Journeys |
+| --- | --- | --- |
+| **Plantation Owner** | Approves investment, monitors profitability | Registration & onboarding, team setup, financial dashboard, scheduled report exports |
+| **Farm Manager** | Plans operations, configures alerts, assigns work | Morning briefing, season planning, alert configuration & response, disease/pest monitoring, financial & labor oversight |
+| **Field Supervisor** | Executes and logs field tasks, scouts risks | Daily task review via mobile PWA, offline activity logging with photos, disease/pest scouting, alert response verification |
+
+Primary flows are captured in `docs/userflow.md` and `docs/AgriSync Pro User Flow Diagram.svg`, detailing navigation from authentication through offline sync.
+
+## Product Scope
+
+### Field & Crop Management
+- Draw geo-referenced fields, auto-calc area, store soil/elevation notes.
+- Configure crop calendars with planting/harvest, growth-stage tracking, and activity history.
+- View per-field dashboards (weather, alerts, photos, activities).
+
+### Activity Logging
+- Log land prep, planting, fertilizer, spraying, weeding, irrigation, and harvest events with optional inputs and photos.
+- Offline-first mobile workflow with conflict resolution once connected.
+
+### Weather Intelligence
+- Current conditions and 3–7-day forecasts per field with confidence indicators.
+- Weather impact analysis (rainfall vs. soil moisture, temperature vs. growth).
+- Map overlays for weather fronts and risk hotspots.
+
+### Alert & Notification Engine
+- Pre-built rules for frost, heavy rain, heat stress, disease, irrigation, and harvest timing.
+- Configurable thresholds, recipients, and delivery channels (push, SMS, in-app).
+- Alert lifecycle: generation → notification → acknowledgement → logged response.
+
+### Financial Tracking & Reporting
+- Input cost recording (product, amount, field allocation) and harvest sale tracking.
+- Profitability snapshots per field/season with gross margin indicators.
+- Dashboards for weather overview, activity timeline, alerts, and cost vs. revenue.
+- Report builder for financials, weather impact, and alert effectiveness (exportable PDF/Excel).
+
+## MVP Scope (First 6 Weeks)
+Derived from `docs/mvp.md`, the MVP targets rapid value delivery:
+1. **Week 1–2** – Authentication, single-plantation setup, draw up to five fields.
+2. **Week 2–3** – Crop planning with predefined crops (Coffee, Cocoa, Plantain/Banana, Maize) plus basic activity logging.
+3. **Week 3–4** – Weather display (current + 3-day) and essential alerts (heavy rain, heat/cold extremes, frost).
+4. **Week 4–5** – Input cost capture and harvest revenue logging with per-field profit.
+5. **Week 5–6** – Unified dashboard and simple reports (field performance, seasonal P&L, weather impact summary).
+
+**Out of scope initially**: multi-user roles beyond owner, advanced alert customization, AI-driven disease models, inventory tracking, offline sync, SMS/email notifications, and multi-plantation support.
+
+## Beyond MVP Enhancements
+- Role-based access control with granular permissions.
+- Advanced rules engine and configurable notification matrix.
+- Offline-first synchronization, worker management, and inventory tracking.
+- Predictive analytics (yield forecasting, disease/pest ML models, irrigation optimization).
+- API integrations for market prices and third-party sensors.
+
+## AI & Decision Intelligence Roadmap
+
+### High Priority (Launch + first data)
+1. **Weather downscaling** – ML models combining topography, historical data, and APIs for field-level forecasts.
+2. **Disease risk prediction** – Classification blending humidity, temperature, crop stage, and treatment history (e.g., Black Sigatoka).
+3. **Pest infestation forecasting** – Time-series models capturing seasonal pest cycles per crop and micro-climate.
+4. **Yield prediction** – Regression using weather, activity logs, and input usage to anticipate season outcomes.
+
+### Medium Priority (Post data maturity)
+5. **Irrigation optimization** – Evapotranspiration + soil models recommending exact watering windows.
+6. **Harvest timing** – Growing Degree Day tracking to pinpoint market-ready windows.
+7. **Input recommendations** – Prescription suggestions for fertilizer/chemicals based on soil and historical performance.
+
+### Advanced (After 6–12 months of data)
+8. **Anomaly detection** – Surface unusual field patterns using unsupervised learning.
+9. **Climate adaptation insights** – Long-term guidance to adjust practices to shifting climate baselines.
+
+Start with rule-based heuristics, collect 6–12 months of field data, then replace high-value rules with localized AI models.
+
+## Technical Architecture & Stack
+
+### System Overview
+- **Clients**: React-based PWA (mobile, tablet, desktop) plus future native wrappers.
+- **Gateway & Microservices**: NestJS API gateway orchestrating Weather, Crop Management, Alerting, Analytics, and Notification services.
+- **Data Stores**: PostgreSQL + PostGIS for relational & spatial data, TimescaleDB extension for weather time-series, object storage for photos, Redis for caching and job queues.
+- **AI/ML Engine**: Consumes time-series and relational data for risk scoring, feeding alert engine and analytics.
+- **Integrations**: Weather APIs (OpenWeatherMap, WeatherAPI, Visual Crossing), messaging (Firebase FCM, Twilio SMS), mapping (Leaflet/OpenStreetMap, Mapbox optional).
+
+### Frontend Stack (PWA-first)
+- React 18 + TypeScript, Vite toolchain, Material UI + Emotion, React Router v6.
+- PWA tooling: Workbox, `vite-plugin-pwa`, IndexedDB/`idb-keyval`, Background Sync API, Push Notifications API.
+- Mapping: React-Leaflet with Leaflet Draw, Turf.js for spatial calculations, optional Google Maps React.
+- Visualization: Recharts or Chart.js for analytics, Leaflet heatmap plugins for weather overlays.
+
+### Backend Stack
+- NestJS 10+, TypeORM, Class Validator, ConfigModule.
+- Auth: Passport.js with JWT, bcrypt, RBAC.
+- Real-time + jobs: `@nestjs/websockets` with Socket.IO, Bull queues + Redis, scheduled cron jobs.
+- File handling: Multer + Sharp, storage via AWS S3 (or equivalent), PDF generation for reports.
+
+### Data & Infrastructure
+- PostgreSQL 14+ with PostGIS (spatial) and TimescaleDB (time-series). Reference `docs/agrisync_database_setup.sql` for schema seeds.
+- Redis for caching weather responses and queue management.
+- Deployment suggestion: Vercel/Netlify for PWA, AWS EC2 or DigitalOcean for NestJS, AWS RDS Postgres + PostGIS, Redis Cloud/ElastiCache, S3 + CloudFront for assets.
+- Monitoring: Sentry, LogRocket, Google Analytics, Lighthouse CI, Core Web Vitals plus RUM.
+- Dev experience: ESLint (Airbnb), Prettier, Husky hooks, Jest testing, Docker Compose for Postgres/PostGIS + Redis + services.
+
+### Supporting Diagrams & Assets
+All diagrams live in `docs/`:
+- `AgriSync Pro Class Diagram.svg`
+- `AgriSync Pro Use Case Diagram.svg`
+- `AgriSync Pro User Flow Diagram.svg`
+- `Authentication Sequence Diagram.svg`
+- `Disease Risk Prediction & Reporting Sequence Diagram.svg`
+- `Field Activity Logging Sequence Diagram.svg`
+- `Financial Report Generation Sequence Diagram.svg`
+- `Weather Alert Generation Sequence Diagram.svg`
+- `entity/` ERD assets and `agrisync_database_setup.sql`
+
+## Implementation Timeline
+1. **Pilot Preparation (Weeks 1–2)** – Map 50-hectare test block, train managers, configure alerts. Offered as risk-free pilot.
+2. **Validation (Months 1–3)** – Track alert accuracy, quantify savings, measure yield impact; go/no-go checkpoint.
+3. **Full Rollout (Month 4)** – Scale to full plantation, enable advanced analytics, configure custom reporting.
+4. **Intelligence Expansion (Months 4–6)** – Build alert rules engine, crop growth tracking, offline mobile capabilities.
+5. **Advanced Features (Months 7–9)** – ML risk prediction, multi-plantation management, API integrations.
+6. **Optimization (Months 10–12)** – Performance tuning, advanced customization, scale readiness.
+
+## Value & ROI Narrative
+- **Cost model**: Annual subscription priced per monitored hectare; pilot equals cost of a junior farm manager.
+- **Projected ROI (100 ha farm)**:
+  - Chemical use: 40 % reduction in applications + 10 % yield protection.
+  - Diesel (irrigation): 15–20 % reduction via precise scheduling.
+  - Fertilizer efficiency: 20 % savings through optimized timing.
+  - Labor productivity: 15 % efficiency gain from proactive planning.
+  - Yield: 10–15 % increase by mitigating weather/disease shocks.
+- **Net impact**: 20–35 % lift in net profitability when alerts and insights are actioned consistently.
+
+## Setup & Enablement Notes
+- **PostGIS installation**: Follow OS-specific steps in `docs/install.mdx` (apt/Homebrew/StackBuilder). Enable per database with `CREATE EXTENSION postgis;` and optionally `postgis_topology`.
+- **Training & support**:
+  - Douala-based agronomist + WhatsApp hotline.
+  - Training workshops for managers and field staff, voice-to-text entry, bilingual (French, English, Cameroonian Pidgin).
+  - Offline-first design ensures continuity in low-connectivity regions; data syncs automatically when signal returns.
+- **Data governance**: Client retains data ownership; contracts reinforce privacy. Recommendations augment (not replace) expert judgment.
+
+## Appendix: Quick Reference
+- **MVP scope & exclusions**: `docs/mvp.md`
+- **Detailed functional planning & use cases**: `docs/agrisynctech.mdx`
+- **Technology stack deep dive & learning plan**: `docs/agrisynctech2.mdx`
+- **AI functionality priorities**: `docs/functionalities.mdx`
+- **DeepSeek conversation export**: `docs/deepseek-chat-2025-12-09T09-22-47-417Z.html` (source discussion history)
+- **Database setup scripts**: `docs/agrisync_database_setup.sql`
+
+This consolidated brief keeps the project narrative, functional scope, technical architecture, and rollout plan in one professional yet digestible reference for stakeholders and new contributors.
