@@ -1,99 +1,107 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Agri Sync Pro
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Agri Sync Pro is a modular NestJS platform for coordinating agricultural operations. The project follows a strict feature-based architecture, enforces shared coding conventions, and exposes a consistent API response format suited for large, multi-team development.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Project Structure
 
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Project setup
-
-```bash
-$ pnpm install
+```
+src/
+  common/           # shared decorators, interceptors, guards, filters, pipes, utils
+  config/           # configuration factories and environment validation
+  modules/
+    auth/           # auth flows (login/register)
+    users/          # user management (controllers, DTOs, services, entities)
+    products/       # catalog/product management
+    health/         # health checks and uptime endpoints
+  app.module.ts
+  main.ts
 ```
 
-## Compile and run the project
+Each module keeps its controllers, services, DTOs, and entities nearby to encourage clear ownership. Shared logic lives in `src/common`, and application bootstrap/customization stays out of `main.ts` via the `configureApp` helper.
 
-```bash
-# development
-$ pnpm run start
+## Getting Started
 
-# watch mode
-$ pnpm run start:dev
+1. **Install dependencies**
 
-# production mode
-$ pnpm run start:prod
+   ```bash
+   pnpm install
+   ```
+
+2. **Copy env configuration**
+
+   ```bash
+   cp .env.example .env.development
+   # update values as needed
+   ```
+
+3. **Run the API**
+
+   ```bash
+   pnpm run start:dev
+   ```
+
+4. **Swagger docs** are exposed at `http://localhost:<PORT>/api/docs`.
+
+## Scripts
+
+| Command             | Description                              |
+| ------------------- | ---------------------------------------- |
+| `pnpm run start`    | Start the compiled app                   |
+| `pnpm run start:dev`| Start in watch mode                      |
+| `pnpm run lint`     | Run ESLint with strict shared rules      |
+| `pnpm run format`   | Format files with Prettier               |
+| `pnpm run test`     | Run unit tests                           |
+| `pnpm run test:e2e` | Run end-to-end tests                     |
+| `pnpm run build`    | Compile TypeScript to `dist/`            |
+
+## Environment Variables
+
+The application never hardcodes secrets. Configuration is pulled from `.env.*` files through `@nestjs/config` and validated by `src/config/env.validation.ts`. Minimum requirements are captured in `.env.example`:
+
+```
+NODE_ENV=
+APP_NAME=
+PORT=
+API_VERSION=
+DATABASE_URL=
+JWT_SECRET=
+JWT_EXPIRES_IN=
+REDIS_HOST=
+REDIS_PORT=
+REDIS_PASSWORD=
+SECURITY_API_KEY=
 ```
 
-## Run tests
+## Coding Standards
 
-```bash
-# unit tests
-$ pnpm run test
+- **ESLint + Prettier + EditorConfig** keep formatting and linting consistent.
+- `@typescript-eslint/no-explicit-any` ensures no `any` usage.
+- `unused-imports` and `simple-import-sort` enforce deterministic imports with no dead code.
+- DTOs leverage `class-validator`/`class-transformer`, and controllers never validate raw JSON.
+- Shared API responses come from the response interceptor so every endpoint returns `{ status, message, data }`.
 
-# e2e tests
-$ pnpm run test:e2e
+## API Defaults
 
-# test coverage
-$ pnpm run test:cov
-```
+- Global prefix: `/api`
+- Versioning: URI-based (`/api/v1/...`)
+- Response normalization & exception handling configured through global interceptors/filters.
+- Helmet provides sensible security headers.
+- Swagger is available behind `/api/docs` for easy discovery.
+- Health checks are powered by `@nestjs/terminus`, exposing `/api/v1/health` with memory indicators.
 
-## Deployment
+## Branching & Git Flow
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+- `main` → production, `dev` → integration.
+- Prefix feature branches with `feature/` and urgent fixes with `hotfix/`.
+- Follow [Conventional Commits](https://www.conventionalcommits.org/): e.g., `feat: add user registration`.
+- All work merges into `dev` via PR and must pass CI (lint, test, build) before reaching `main`.
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+## Testing Strategy
 
-```bash
-$ pnpm install -g mau
-$ mau deploy
-```
+- Unit tests live alongside the relevant modules.
+- `test/app.e2e-spec.ts` covers critical HTTP flows using the same bootstrap config as production.
+- CI runs lint → unit tests → e2e tests (optional) → build to block regressions before merge.
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## Documentation & Knowledge Sharing
 
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Keep project docs, RFCs, and user guides inside the `docs/` directory. When introducing a new module or workflow, update both this README and the appropriate doc so other engineers can ramp up quickly.

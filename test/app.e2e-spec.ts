@@ -1,7 +1,8 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
-import { AppModule } from './../src/app.module';
+import { Test, TestingModule } from '@nestjs/testing';
+import request, { Response } from 'supertest';
+import { AppModule } from '../src/app.module';
+import { configureApp } from '../src/common/utils/app-config.util';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
@@ -12,13 +13,20 @@ describe('AppController (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    await configureApp(app);
     await app.init();
   });
 
-  it('/ (GET)', () => {
+  it('/api/v1/health (GET)', () => {
     return request(app.getHttpServer())
-      .get('/')
+      .get('/api/v1/health')
       .expect(200)
-      .expect('Hello World!');
+      .expect(({ body }: Response) => {
+        expect(body.status).toBe('success');
+        expect(body.message).toBe('Application healthy');
+        expect(body.data.status).toBe('ok');
+        expect(body.data.info.memory_heap.status).toBe('up');
+        expect(body.data.info.memory_rss.status).toBe('up');
+      });
   });
 });
