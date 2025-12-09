@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { ApiKeyGuard } from './common/guards/api-key.guard';
-import configuration from './config/configuration';
+import configuration, { AppConfiguration } from './config/configuration';
 import { validateEnv } from './config/env.validation';
+import { buildTypeOrmConfig } from './config/typeorm.config';
 import { HealthModule } from './modules/health/health.module';
 
 @Module({
@@ -12,12 +14,15 @@ import { HealthModule } from './modules/health/health.module';
       isGlobal: true,
       envFilePath: [
         `.env.${process.env.NODE_ENV ?? 'development'}`,
-        '.env.development',
         '.env',
-        '.env.example',
       ],
       load: [configuration],
       validate: validateEnv,
+    }),
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService<AppConfiguration>) =>
+        buildTypeOrmConfig(configService),
     }),
     HealthModule,
   ],
