@@ -9,6 +9,11 @@ export interface AppConfiguration {
   database: {
     url: string;
   };
+  supabase?: {
+    url?: string;
+    serviceRoleKey?: string;
+    databaseUrl?: string;
+  };
   jwt: {
     secret: string;
     expiresIn: string;
@@ -36,6 +41,11 @@ const configuration = (): AppConfiguration => {
     },
     database: {
       url: process.env.DATABASE_URL ?? '',
+    },
+    supabase: {
+      url: process.env.SUPABASE_URL ?? undefined,
+      serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY ?? undefined,
+      databaseUrl: process.env.SUPABASE_DB_URL ?? undefined,
     },
     jwt: {
       secret: process.env.JWT_SECRET ?? '',
