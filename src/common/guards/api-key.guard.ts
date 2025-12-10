@@ -7,6 +7,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
+
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 
 @Injectable()
@@ -34,9 +35,7 @@ export class ApiKeyGuard implements CanActivate {
       return true;
     }
 
-    const apiKey = Array.isArray(apiKeyHeader)
-      ? apiKeyHeader[0]
-      : apiKeyHeader;
+    const apiKey = Array.isArray(apiKeyHeader) ? apiKeyHeader[0] : apiKeyHeader;
 
     if (apiKey === expectedKey) {
       return true;

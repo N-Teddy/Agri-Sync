@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { User } from 'src/entities';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
-  ) { }
+  ) {}
 
   findByEmail(email: string): Promise<User | null> {
     return this.usersRepository.findOne({ where: { email } });
@@ -34,14 +34,11 @@ export class UsersService {
   }
 
   async update(id: string, data: Partial<User>): Promise<User> {
-    await this.usersRepository.update(
-      id,
-      data as any,
-    );
-    const updated = await this.findById(id);
-    if (!updated) {
-      throw new Error('User not found after update');
+    const user = await this.findById(id);
+    if (!user) {
+      throw new Error('User not found');
     }
-    return updated;
+    Object.assign(user, data);
+    return this.usersRepository.save(user);
   }
 }

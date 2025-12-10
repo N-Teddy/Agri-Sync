@@ -16,7 +16,8 @@ export class GoogleAuthService {
   private readonly client: OAuth2Client;
 
   constructor(private readonly configService: ConfigService<AppConfiguration>) {
-    const googleConfig = this.configService.get('google');
+    const googleConfig =
+      this.configService.get<AppConfiguration['google']>('google');
     if (!googleConfig?.clientId) {
       throw new Error('Google OAuth is not configured');
     }
@@ -28,9 +29,11 @@ export class GoogleAuthService {
   }
 
   async verifyIdToken(idToken: string): Promise<GoogleProfile> {
+    const googleConfig =
+      this.configService.get<AppConfiguration['google']>('google');
     const ticket = await this.client.verifyIdToken({
       idToken,
-      audience: this.configService.get('google')?.clientId,
+      audience: googleConfig?.clientId,
     });
 
     const payload = ticket.getPayload() as TokenPayload;

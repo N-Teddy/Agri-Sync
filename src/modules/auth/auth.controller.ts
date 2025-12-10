@@ -8,22 +8,26 @@ import {
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
-import { Express } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Express } from 'express';
 import { memoryStorage } from 'multer';
+import {
+  CurrentUser,
+  RequestUser,
+} from 'src/common/decorators/current-user.decorator';
 import { Public } from 'src/common/decorators/public.decorator';
-import { CurrentUser, RequestUser } from 'src/common/decorators/current-user.decorator';
+
 import { AuthResponse, AuthService } from './auth.service';
-import { RegisterDto } from './dto/register.dto';
-import { LoginDto } from './dto/login.dto';
-import { VerifyEmailDto } from './dto/verify-email.dto';
-import { RefreshTokenDto } from './dto/refresh-token.dto';
-import { UpdateProfileDto } from './dto/update-profile.dto';
 import { GoogleAuthDto } from './dto/google-auth.dto';
+import { LoginDto } from './dto/login.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { RegisterDto } from './dto/register.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
+import { VerifyEmailDto } from './dto/verify-email.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) { }
+  constructor(private readonly authService: AuthService) {}
   @Public()
   @Post('register')
   register(@Body() dto: RegisterDto): Promise<AuthResponse> {
@@ -59,7 +63,6 @@ export class AuthController {
   refresh(@Body() dto: RefreshTokenDto): Promise<AuthResponse> {
     return this.authService.refreshTokens(dto);
   }
-
 
   @Post('logout')
   logout(@CurrentUser() user: RequestUser) {

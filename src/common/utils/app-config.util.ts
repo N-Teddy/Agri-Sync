@@ -1,16 +1,18 @@
-import { INestApplication, ValidationPipe, VersioningType } from '@nestjs/common';
+import type { INestApplication } from '@nestjs/common';
+import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
+import type { AppConfiguration } from 'src/config/configuration';
+
 import { AllExceptionsFilter } from '../filters/http-exception.filter';
 import { ResponseInterceptor } from '../interceptors/response.interceptor';
 
-export const configureApp = async (
+export const configureApp = (
   app: INestApplication,
-): Promise<ConfigService> => {
-  const configService = app.get(ConfigService);
-  const globalPrefix =
-    configService.get<string>('app.globalPrefix') ?? 'api';
+): ConfigService<AppConfiguration> => {
+  const configService = app.get<ConfigService<AppConfiguration>>(ConfigService);
+  const globalPrefix = configService.get<string>('app.globalPrefix') ?? 'api';
   const apiVersion = configService.get<string>('app.apiVersion') ?? '1';
 
   app.setGlobalPrefix(globalPrefix);

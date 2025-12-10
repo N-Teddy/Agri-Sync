@@ -1,12 +1,13 @@
 import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
-import { BaseEntity } from './base.entity';
-import { Plantation } from './plantation.entity';
+
 import { CropType } from '../common/enums/crop-type.enum';
-import { PlantingSeason } from './planting-season.entity';
-import { FieldActivity } from './field-activity.entity';
-import { WeatherData } from './weather-data.entity';
-import { FinancialRecord } from './financial-record.entity';
 import { Alert } from './alert.entity';
+import { BaseEntity } from './base.entity';
+import { FieldActivity } from './field-activity.entity';
+import { FinancialRecord } from './financial-record.entity';
+import { Plantation } from './plantation.entity';
+import { PlantingSeason } from './planting-season.entity';
+import { WeatherData } from './weather-data.entity';
 
 @Entity({ name: 'fields' })
 export class Field extends BaseEntity {

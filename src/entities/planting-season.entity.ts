@@ -1,8 +1,9 @@
 import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
-import { BaseEntity } from './base.entity';
-import { Field } from './field.entity';
+
 import { CropType } from '../common/enums/crop-type.enum';
 import { PlantingSeasonStatus } from '../common/enums/planting-season-status.enum';
+import { BaseEntity } from './base.entity';
+import { Field } from './field.entity';
 import { FieldActivity } from './field-activity.entity';
 
 @Entity({ name: 'planting_seasons' })

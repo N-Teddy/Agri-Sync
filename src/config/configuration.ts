@@ -76,7 +76,8 @@ const configuration = (): AppConfiguration => {
       port: Number(process.env.EMAIL_PORT) || 587,
       user: process.env.EMAIL_USER ?? '',
       pass: process.env.EMAIL_PASS ?? '',
-      from: process.env.EMAIL_FROM ?? 'Agri Sync Pro <no-reply@agrisyncpro.com>',
+      from:
+        process.env.EMAIL_FROM ?? 'Agri Sync Pro <no-reply@agrisyncpro.com>',
     },
     cloudinary: {
       cloudName: process.env.CLOUDINARY_CLOUD_NAME ?? undefined,

@@ -1,8 +1,9 @@
 import { Column, Entity, ManyToOne } from 'typeorm';
+
+import { AlertSeverity } from '../common/enums/alert-severity.enum';
+import { AlertType } from '../common/enums/alert-type.enum';
 import { BaseEntity } from './base.entity';
 import { Field } from './field.entity';
-import { AlertType } from '../common/enums/alert-type.enum';
-import { AlertSeverity } from '../common/enums/alert-severity.enum';
 
 @Entity({ name: 'alerts' })
 export class Alert extends BaseEntity {

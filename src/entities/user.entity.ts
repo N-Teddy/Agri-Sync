@@ -1,6 +1,7 @@
 import { Column, Entity, Index, OneToMany, Unique } from 'typeorm';
-import { Plantation } from './plantation.entity';
+
 import { BaseEntity } from './base.entity';
+import { Plantation } from './plantation.entity';
 
 @Entity({ name: 'users' })
 @Unique(['email'])

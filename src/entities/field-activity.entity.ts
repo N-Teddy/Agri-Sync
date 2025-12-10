@@ -1,7 +1,8 @@
 import { Column, Entity, ManyToOne } from 'typeorm';
+
+import { ActivityType } from '../common/enums/activity-type.enum';
 import { BaseEntity } from './base.entity';
 import { Field } from './field.entity';
-import { ActivityType } from '../common/enums/activity-type.enum';
 import { PlantingSeason } from './planting-season.entity';
 
 @Entity({ name: 'field_activities' })

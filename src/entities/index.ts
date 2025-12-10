@@ -1,4 +1,3 @@
-export * from './base.entity';
 export * from '../common/enums/activity-type.enum';
 export * from '../common/enums/alert-severity.enum';
 export * from '../common/enums/alert-type.enum';
@@ -6,8 +5,9 @@ export * from '../common/enums/crop-type.enum';
 export * from '../common/enums/financial-record-type.enum';
 export * from '../common/enums/planting-season-status.enum';
 export * from './alert.entity';
-export * from './field-activity.entity';
+export * from './base.entity';
 export * from './field.entity';
+export * from './field-activity.entity';
 export * from './financial-record.entity';
 export * from './plantation.entity';
 export * from './planting-season.entity';

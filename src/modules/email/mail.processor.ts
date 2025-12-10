@@ -1,7 +1,11 @@
 import { Process, Processor } from '@nestjs/bull';
-import { Job } from 'bull';
 import { Injectable, Logger } from '@nestjs/common';
-import { MailerService, SendMailPayload } from 'src/common/third-party/mailer.service';
+import { Job } from 'bull';
+import {
+  MailerService,
+  SendMailPayload,
+} from 'src/common/third-party/mailer.service';
+
 import { EMAIL_QUEUE, SEND_EMAIL_JOB } from './email.constants';
 
 @Processor(EMAIL_QUEUE)

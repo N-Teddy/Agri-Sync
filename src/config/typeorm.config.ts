@@ -1,8 +1,18 @@
-import { ConfigService } from '@nestjs/config';
-import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import type { ConfigService } from '@nestjs/config';
+import type { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { SupabaseConnectionService } from 'src/common/third-party/supabase-connection.service';
-import { Alert, Field, FieldActivity, FinancialRecord, Plantation, PlantingSeason, User, WeatherData } from 'src/entities';
-import { AppConfiguration } from './configuration';
+import {
+  Alert,
+  Field,
+  FieldActivity,
+  FinancialRecord,
+  Plantation,
+  PlantingSeason,
+  User,
+  WeatherData,
+} from 'src/entities';
+
+import type { AppConfiguration } from './configuration';
 
 export const buildTypeOrmConfig = (
   configService: ConfigService<AppConfiguration>,
@@ -26,8 +36,14 @@ export const buildTypeOrmConfig = (
     type: 'postgres',
     url: connectionUrl,
     entities: [
-      Alert, Field, FieldActivity, FinancialRecord, Plantation,
-      PlantingSeason, User, WeatherData
+      Alert,
+      Field,
+      FieldActivity,
+      FinancialRecord,
+      Plantation,
+      PlantingSeason,
+      User,
+      WeatherData,
     ],
     autoLoadEntities: true,
     synchronize: !isProduction,

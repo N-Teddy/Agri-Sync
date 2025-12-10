@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { promises as fs, existsSync, mkdirSync } from 'fs';
+import { existsSync, mkdirSync, promises as fs } from 'fs';
 import { join } from 'path';
 import { AppConfiguration } from 'src/config/configuration';
 
@@ -9,13 +9,12 @@ export class LocalStorageService {
   private readonly uploadsDir: string;
 
   constructor(private readonly configService: ConfigService<AppConfiguration>) {
-    const dir =
-      this.configService.get('storage')?.uploadsDir ??
-      join(process.cwd(), 'uploads');
+    const storage =
+      this.configService.get<AppConfiguration['storage']>('storage');
+    const fallbackDir = join(process.cwd(), 'uploads');
+    const dir = storage?.uploadsDir ?? fallbackDir;
 
-    this.uploadsDir = dir.startsWith('/')
-      ? dir
-      : join(process.cwd(), dir);
+    this.uploadsDir = dir.startsWith('/') ? dir : join(process.cwd(), dir);
 
     if (!existsSync(this.uploadsDir)) {
       mkdirSync(this.uploadsDir, { recursive: true });

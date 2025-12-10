@@ -15,7 +15,7 @@ export class MailerService {
   private transporter: Transporter;
 
   constructor(private readonly configService: ConfigService<AppConfiguration>) {
-    const mailConfig = this.configService.get('mail');
+    const mailConfig = this.configService.get<AppConfiguration['mail']>('mail');
     if (!mailConfig) {
       throw new Error('Mail configuration missing');
     }
@@ -31,7 +31,7 @@ export class MailerService {
   }
 
   async send(payload: SendMailPayload): Promise<void> {
-    const mailConfig = this.configService.get('mail');
+    const mailConfig = this.configService.get<AppConfiguration['mail']>('mail');
     await this.transporter.sendMail({
       from: mailConfig?.from,
       ...payload,

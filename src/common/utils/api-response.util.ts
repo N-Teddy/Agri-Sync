@@ -1,4 +1,4 @@
-import { SuccessResponse } from '../interfaces/api-response.interface';
+import type { SuccessResponse } from '../interfaces/api-response.interface';
 
 export const buildSuccessResponse = <T>(
   message: string,

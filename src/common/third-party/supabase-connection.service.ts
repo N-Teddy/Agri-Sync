@@ -1,6 +1,6 @@
-import { ConfigService } from '@nestjs/config';
+import type { ConfigService } from '@nestjs/config';
 import { Pool } from 'pg';
-import { AppConfiguration } from 'src/config/configuration';
+import type { AppConfiguration } from 'src/config/configuration';
 
 interface SupabaseSettings {
   url: string;
@@ -17,7 +17,7 @@ export class SupabaseConnectionService {
 
   constructor(
     private readonly configService: ConfigService<AppConfiguration>,
-  ) { }
+  ) {}
 
   public getDatabaseUrl(): string {
     const supabase = this.ensureConfig();
@@ -35,9 +35,8 @@ export class SupabaseConnectionService {
   }
 
   private ensureConfig(): SupabaseSettings {
-    const supabaseConfig = this.configService.get<AppConfiguration['supabase']>(
-      'supabase',
-    );
+    const supabaseConfig =
+      this.configService.get<AppConfiguration['supabase']>('supabase');
 
     if (!supabaseConfig?.databaseUrl) {
       throw new Error(

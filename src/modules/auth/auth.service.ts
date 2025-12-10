@@ -1,24 +1,29 @@
-import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
+import { Express } from 'express';
 import { promises as fs } from 'fs';
 import { extname } from 'path';
-import { UsersService } from '../users/users.service';
-import { RegisterDto } from './dto/register.dto';
-import { LoginDto } from './dto/login.dto';
-import { VerifyEmailDto } from './dto/verify-email.dto';
-import { RefreshTokenDto } from './dto/refresh-token.dto';
-import { UpdateProfileDto } from './dto/update-profile.dto';
-import { GoogleAuthDto } from './dto/google-auth.dto';
-import { AppConfiguration } from 'src/config/configuration';
-import { EmailQueueService } from '../email/email-queue.service';
-import { GoogleAuthService } from 'src/common/third-party/google-auth.service';
-import { CloudinaryService } from 'src/common/third-party/cloudinary.service';
 import { LocalStorageService } from 'src/common/services/local-storage.service';
+import { CloudinaryService } from 'src/common/third-party/cloudinary.service';
+import { GoogleAuthService } from 'src/common/third-party/google-auth.service';
+import { AppConfiguration } from 'src/config/configuration';
 import { User } from 'src/entities';
-import { Express } from 'express';
+
+import { EmailQueueService } from '../email/email-queue.service';
+import { UsersService } from '../users/users.service';
+import { GoogleAuthDto } from './dto/google-auth.dto';
+import { LoginDto } from './dto/login.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { RegisterDto } from './dto/register.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
+import { VerifyEmailDto } from './dto/verify-email.dto';
 
 interface AuthTokens {
   accessToken: string;
@@ -103,7 +108,7 @@ export class AuthService {
         googleId: profile.sub,
         isEmailVerified: profile.emailVerified || user.isEmailVerified,
         emailVerifiedAt: profile.emailVerified
-          ? user.emailVerifiedAt ?? new Date()
+          ? (user.emailVerifiedAt ?? new Date())
           : user.emailVerifiedAt,
         avatarUrl: profile.picture ?? user.avatarUrl,
       });
@@ -145,14 +150,12 @@ export class AuthService {
     return { message: 'Email verified successfully' };
   }
 
-  async refreshTokens(
-    payload: RefreshTokenDto,
-    rememberMe?: boolean,
-  ): Promise<AuthResponse> {
+  async refreshTokens(payload: RefreshTokenDto): Promise<AuthResponse> {
+    const jwtConfig = this.getJwtConfig();
     let decoded: { sub: string; email: string; rememberMe?: boolean };
     try {
       decoded = await this.jwtService.verifyAsync(payload.refreshToken, {
-        secret: this.configService.get('jwt')?.refreshSecret,
+        secret: jwtConfig.refreshSecret,
       });
     } catch {
       throw new UnauthorizedException('Invalid refresh token');
@@ -213,12 +216,18 @@ export class AuthService {
 
     const extension = extname(file.originalname) || '.jpg';
     const filename = `${userId}-${Date.now()}${extension}`;
-    const localPath = await this.localStorageService.saveFile(file.buffer, filename);
-    const appConfig = this.configService.get('app');
+    const localPath = await this.localStorageService.saveFile(
+      file.buffer,
+      filename,
+    );
+    const appConfig = this.getAppConfig();
     let avatarUrl = localPath;
 
-    if (appConfig?.env === 'production' && this.cloudinaryService.isEnabled()) {
-      const response = await this.cloudinaryService.uploadImage(localPath, 'avatars');
+    if (appConfig.env === 'production' && this.cloudinaryService.isEnabled()) {
+      const response = await this.cloudinaryService.uploadImage(
+        localPath,
+        'avatars',
+      );
       avatarUrl = response.secure_url;
       await fs.unlink(localPath).catch(() => undefined);
     }
@@ -231,10 +240,7 @@ export class AuthService {
     user: User,
     rememberMe?: boolean,
   ): Promise<AuthTokens> {
-    const jwtConfig = this.configService.get('jwt');
-    if (!jwtConfig) {
-      throw new Error('JWT configuration missing');
-    }
+    const jwtConfig = this.getJwtConfig();
 
     const payload = { sub: user.id, email: user.email };
     const accessToken = await this.jwtService.signAsync(payload, {
@@ -262,8 +268,7 @@ export class AuthService {
     userId: string,
     refreshToken: string,
   ): Promise<void> {
-    const decoded = this.jwtService.decode(refreshToken) as { exp?: number };
-    const expiresAt = decoded?.exp ? new Date(decoded.exp * 1000) : undefined;
+    const expiresAt = this.getRefreshTokenExpiry(refreshToken);
     const hashedToken = await bcrypt.hash(refreshToken, this.bcryptRounds);
 
     await this.usersService.update(userId, {
@@ -273,12 +278,10 @@ export class AuthService {
   }
 
   private sanitizeUser(user: User): Record<string, unknown> {
-    const {
-      passwordHash,
-      refreshTokenHash,
-      emailVerificationToken,
-      ...safeUser
-    } = user;
+    const safeUser: Record<string, unknown> = { ...user };
+    delete safeUser.passwordHash;
+    delete safeUser.refreshTokenHash;
+    delete safeUser.emailVerificationToken;
     return safeUser;
   }
 
@@ -286,9 +289,9 @@ export class AuthService {
     email: string,
     token: string,
   ): Promise<void> {
-    const appConfig = this.configService.get('app');
-    const baseUrl = appConfig?.webUrl?.replace(/\/$/, '') ?? '';
-    const verifyUrl = `${baseUrl}/${appConfig?.globalPrefix ?? 'api'}/auth/verify-email?token=${token}`;
+    const appConfig = this.getAppConfig();
+    const baseUrl = appConfig.webUrl.replace(/\/$/, '');
+    const verifyUrl = `${baseUrl}/${appConfig.globalPrefix}/auth/verify-email?token=${token}`;
     const html = `
       <p>Hello,</p>
       <p>Please verify your email address to activate your Agri Sync Pro account.</p>
@@ -303,5 +306,34 @@ export class AuthService {
       html,
       text: `Verify your account: ${verifyUrl}`,
     });
+  }
+
+  private getJwtConfig(): AppConfiguration['jwt'] {
+    const jwtConfig = this.configService.get<AppConfiguration['jwt']>('jwt');
+    if (!jwtConfig) {
+      throw new Error('JWT configuration missing');
+    }
+    return jwtConfig;
+  }
+
+  private getAppConfig(): AppConfiguration['app'] {
+    const appConfig = this.configService.get<AppConfiguration['app']>('app');
+    if (!appConfig) {
+      throw new Error('App configuration missing');
+    }
+    return appConfig;
+  }
+
+  private getRefreshTokenExpiry(refreshToken: string): Date | undefined {
+    const decoded: unknown = this.jwtService.decode(refreshToken);
+    if (
+      decoded &&
+      typeof decoded === 'object' &&
+      'exp' in decoded &&
+      typeof (decoded as { exp: unknown }).exp === 'number'
+    ) {
+      return new Date((decoded as { exp: number }).exp * 1000);
+    }
+    return undefined;
   }
 }

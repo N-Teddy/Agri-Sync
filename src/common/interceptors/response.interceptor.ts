@@ -6,7 +6,11 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { ApiResponse, SuccessResponse } from '../interfaces/api-response.interface';
+
+import {
+  ApiResponse,
+  SuccessResponse,
+} from '../interfaces/api-response.interface';
 
 const DEFAULT_SUCCESS_MESSAGE = 'Request processed successfully';
 

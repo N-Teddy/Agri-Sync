@@ -1,7 +1,8 @@
 import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
+
 import { BaseEntity } from './base.entity';
-import { User } from './user.entity';
 import { Field } from './field.entity';
+import { User } from './user.entity';
 
 @Entity({ name: 'plantations' })
 export class Plantation extends BaseEntity {

@@ -1,8 +1,9 @@
 import { Column, Entity, ManyToOne } from 'typeorm';
+
+import { CropType } from '../common/enums/crop-type.enum';
+import { FinancialRecordType } from '../common/enums/financial-record-type.enum';
 import { BaseEntity } from './base.entity';
 import { Field } from './field.entity';
-import { FinancialRecordType } from '../common/enums/financial-record-type.enum';
-import { CropType } from '../common/enums/crop-type.enum';
 
 @Entity({ name: 'financial_records' })
 export class FinancialRecord extends BaseEntity {

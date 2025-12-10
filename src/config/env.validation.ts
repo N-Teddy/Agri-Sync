@@ -34,11 +34,17 @@ export const validateEnv = (
   config: Record<string, unknown>,
 ): EnvironmentVariables => {
   const getString = (key: keyof EnvironmentVariables, fallback?: string) => {
-    const value = config[key as string] ?? fallback;
+    const value = config[key as string];
     if (value === undefined || value === null || value === '') {
+      if (fallback !== undefined) {
+        return fallback;
+      }
       throw new Error(`Environment variable ${String(key)} is required`);
     }
-    return String(value);
+    if (typeof value !== 'string') {
+      throw new Error(`Environment variable ${String(key)} must be a string`);
+    }
+    return value;
   };
 
   const getNumber = (
@@ -64,39 +70,40 @@ export const validateEnv = (
     key: keyof EnvironmentVariables,
   ): string | undefined => {
     const value = config[key as string];
-    if (value === undefined || value === null || value === '') {
+    if (typeof value !== 'string' || value === '') {
       return undefined;
     }
-    return String(value);
+    return value;
   };
 
-  const nodeEnvValue = String(config.NODE_ENV ?? 'development');
+  const nodeEnvValue = getString('NODE_ENV', 'development');
   const isProduction = nodeEnvValue === 'production';
 
   return {
-    NODE_ENV: getString('NODE_ENV', 'development'),
+    NODE_ENV: nodeEnvValue,
     APP_NAME: getString('APP_NAME', 'Agri Sync Pro'),
     APP_WEB_URL: getString('APP_WEB_URL', 'http://localhost:3000'),
     PORT: getNumber('PORT', 3000),
     API_VERSION: getString('API_VERSION', '1'),
-    DATABASE_URL: isProduction
-      ? String(config.DATABASE_URL ?? '')
-      : getString('DATABASE_URL'),
+    DATABASE_URL: (() => {
+      const databaseUrl = getOptionalString('DATABASE_URL');
+      if (!isProduction && !databaseUrl) {
+        throw new Error('Environment variable DATABASE_URL is required');
+      }
+      return databaseUrl ?? '';
+    })(),
     JWT_SECRET: getString('JWT_SECRET'),
     JWT_EXPIRES_IN: getString('JWT_EXPIRES_IN', '1h'),
     JWT_REFRESH_SECRET: getString('JWT_REFRESH_SECRET', 'refresh_secret'),
-    JWT_REFRESH_EXPIRES_IN: getString(
-      'JWT_REFRESH_EXPIRES_IN',
-      '7d',
-    ),
+    JWT_REFRESH_EXPIRES_IN: getString('JWT_REFRESH_EXPIRES_IN', '7d'),
     JWT_REMEMBER_ME_REFRESH_EXPIRES_IN: getString(
       'JWT_REMEMBER_ME_REFRESH_EXPIRES_IN',
       '30d',
     ),
     REDIS_HOST: getString('REDIS_HOST'),
     REDIS_PORT: getNumber('REDIS_PORT', 6379),
-    REDIS_PASSWORD: (config.REDIS_PASSWORD as string) ?? undefined,
-    SECURITY_API_KEY: (config.SECURITY_API_KEY as string) ?? undefined,
+    REDIS_PASSWORD: getOptionalString('REDIS_PASSWORD'),
+    SECURITY_API_KEY: getOptionalString('SECURITY_API_KEY'),
     SUPABASE_URL: isProduction
       ? getString('SUPABASE_URL')
       : getOptionalString('SUPABASE_URL'),
@@ -110,7 +117,10 @@ export const validateEnv = (
     EMAIL_PORT: getNumber('EMAIL_PORT', 587),
     EMAIL_USER: getString('EMAIL_USER'),
     EMAIL_PASS: getString('EMAIL_PASS'),
-    EMAIL_FROM: getString('EMAIL_FROM', 'Agri Sync Pro <no-reply@agrisyncpro.com>'),
+    EMAIL_FROM: getString(
+      'EMAIL_FROM',
+      'Agri Sync Pro <no-reply@agrisyncpro.com>',
+    ),
     CLOUDINARY_CLOUD_NAME: getOptionalString('CLOUDINARY_CLOUD_NAME'),
     CLOUDINARY_API_KEY: getOptionalString('CLOUDINARY_API_KEY'),
     CLOUDINARY_API_SECRET: getOptionalString('CLOUDINARY_API_SECRET'),

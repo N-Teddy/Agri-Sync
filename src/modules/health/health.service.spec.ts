@@ -1,7 +1,8 @@
-import {
+import type {
   HealthCheckResult,
   HealthIndicatorFunction,
 } from '@nestjs/terminus';
+
 import { HealthService } from './health.service';
 
 describe('HealthService', () => {
@@ -33,12 +34,14 @@ describe('HealthService', () => {
       details: {},
     };
 
-    healthCheck.check.mockImplementation(async (indicators: HealthIndicatorFunction[]) => {
-      for (const indicator of indicators) {
-        await indicator();
-      }
-      return expected;
-    });
+    healthCheck.check.mockImplementation(
+      async (indicators: HealthIndicatorFunction[]) => {
+        for (const indicator of indicators) {
+          await indicator();
+        }
+        return expected;
+      },
+    );
 
     const result = await healthService.check();
 

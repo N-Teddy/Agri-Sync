@@ -12,10 +12,14 @@ export interface JwtPayload {
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(private readonly configService: ConfigService<AppConfiguration>) {
+    const jwtConfig = configService.get<AppConfiguration['jwt']>('jwt');
+    if (!jwtConfig) {
+      throw new Error('JWT configuration missing');
+    }
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: configService.get('jwt')?.secret,
+      secretOrKey: jwtConfig.secret,
     });
   }
 

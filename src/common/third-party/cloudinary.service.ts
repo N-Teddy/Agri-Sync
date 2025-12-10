@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
+import { UploadApiResponse, v2 as cloudinary } from 'cloudinary';
 import { AppConfiguration } from 'src/config/configuration';
 
 @Injectable()
@@ -8,7 +8,8 @@ export class CloudinaryService {
   private readonly enabled: boolean;
 
   constructor(private readonly configService: ConfigService<AppConfiguration>) {
-    const cloudConfig = this.configService.get('cloudinary');
+    const cloudConfig =
+      this.configService.get<AppConfiguration['cloudinary']>('cloudinary');
     this.enabled = Boolean(
       cloudConfig?.cloudName && cloudConfig?.apiKey && cloudConfig?.apiSecret,
     );
