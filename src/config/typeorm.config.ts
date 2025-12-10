@@ -1,6 +1,6 @@
 import type { ConfigService } from '@nestjs/config';
 import type { TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { SupabaseConnectionService } from 'src/common/third-party/supabase-connection.service';
+import { SupabaseConnectionService } from '../common/third-party/supabase-connection.service';
 import {
   Alert,
   Field,
@@ -10,7 +10,7 @@ import {
   PlantingSeason,
   User,
   WeatherData,
-} from 'src/entities';
+} from '../entities';
 
 import type { AppConfiguration } from './configuration';
 
