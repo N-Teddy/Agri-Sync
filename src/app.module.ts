@@ -4,12 +4,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { ApiKeyGuard } from './common/guards/api-key.guard';
 import configuration, { AppConfiguration } from './config/configuration';
 import { validateEnv } from './config/env.validation';
 import { buildTypeOrmConfig } from './config/typeorm.config';
 import { AuthModule } from './modules/auth/auth.module';
-import { JwtAuthGuard } from './modules/auth/jwt-auth.guard';
+import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { HealthModule } from './modules/health/health.module';
 
 @Module({
@@ -44,12 +43,8 @@ import { HealthModule } from './modules/health/health.module';
   providers: [
     {
       provide: APP_GUARD,
-      useClass: ApiKeyGuard,
-    },
-    {
-      provide: APP_GUARD,
       useClass: JwtAuthGuard,
     },
   ],
 })
-export class AppModule {}
+export class AppModule { }

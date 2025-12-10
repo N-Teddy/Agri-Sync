@@ -6,9 +6,15 @@ import {
   Post,
   Query,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import {
+  ApiBearerAuth,
+  ApiConsumes,
+  ApiBody,
+} from '@nestjs/swagger';
 import { Express } from 'express';
 import { memoryStorage } from 'multer';
 import {
@@ -16,6 +22,7 @@ import {
   RequestUser,
 } from 'src/common/decorators/current-user.decorator';
 import { Public } from 'src/common/decorators/public.decorator';
+import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 
 import { AuthResponse, AuthService } from './auth.service';
 import { GoogleAuthDto } from './dto/google-auth.dto';
@@ -27,7 +34,7 @@ import { VerifyEmailDto } from './dto/verify-email.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
   @Public()
   @Post('register')
   register(@Body() dto: RegisterDto): Promise<AuthResponse> {
@@ -64,16 +71,21 @@ export class AuthController {
     return this.authService.refreshTokens(dto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('logout')
   logout(@CurrentUser() user: RequestUser) {
     return this.authService.logout(user.sub);
   }
 
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Get('me')
   getProfile(@CurrentUser() user: RequestUser) {
     return this.authService.getProfile(user.sub);
   }
 
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Patch('profile')
   updateProfile(
     @CurrentUser() user: RequestUser,
@@ -82,6 +94,22 @@ export class AuthController {
     return this.authService.updateProfile(user.sub, dto);
   }
 
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        avatar: {
+          type: 'string',
+          format: 'binary',
+          description: 'Avatar image file (Max 5MB)',
+        },
+      },
+      required: ['avatar'],
+    },
+  })
   @Post('profile/avatar')
   @UseInterceptors(
     FileInterceptor('avatar', {

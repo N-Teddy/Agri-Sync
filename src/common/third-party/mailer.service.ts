@@ -12,6 +12,7 @@ export interface SendMailPayload {
 
 @Injectable()
 export class MailerService {
+  private readonly logger = new Logger(MailerService.name);
   private transporter: Transporter;
 
   constructor(private readonly configService: ConfigService<AppConfiguration>) {
@@ -28,7 +29,7 @@ export class MailerService {
         port: 1025,
         ignoreTLS: true, // MailDev doesn't use TLS
       });
-      Logger.log('MailerService configured to use MailDev on localhost:1025');
+      this.logger.log('MailerService configured to use MailDev on localhost:1025');
     } else {
       this.transporter = nodemailer.createTransport({
         host: mailConfig.host,
