@@ -1,7 +1,7 @@
 import type { INestApplication } from '@nestjs/common';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { DocumentBuilder, SwaggerModule, SwaggerCustomOptions } from '@nestjs/swagger';
 import helmet from 'helmet';
 import type { AppConfiguration } from 'src/config/configuration';
 
@@ -43,7 +43,20 @@ export const configureApp = (
     .build();
 
   const document = SwaggerModule.createDocument(app, documentConfig);
-  SwaggerModule.setup(`${globalPrefix}/docs`, app, document);
+
+  const customOptions: SwaggerCustomOptions = {
+    swaggerOptions: {
+      persistAuthorization: true,
+    },
+    customCssUrl:
+      'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.css',
+    customJs: [
+      'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-bundle.min.js',
+      'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-standalone-preset.min.js',
+    ],
+  };
+
+  SwaggerModule.setup(`${globalPrefix}/docs`, app, document, customOptions);
 
   return configService;
 };
