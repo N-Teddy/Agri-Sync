@@ -8,7 +8,8 @@
                 "includeFiles": [
                     "dist/**",
                     "src/config/**",
-                    "src/common/**"
+                    "src/common/**",
+                    "src/**"
                 ]
             }
         }
