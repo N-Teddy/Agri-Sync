@@ -29,7 +29,9 @@ export class MailerService {
         port: 1025,
         ignoreTLS: true, // MailDev doesn't use TLS
       });
-      this.logger.log('MailerService configured to use MailDev on localhost:1025');
+      this.logger.log(
+        'MailerService configured to use MailDev on localhost:1025',
+      );
     } else {
       this.transporter = nodemailer.createTransport({
         host: mailConfig.host,
