@@ -1,7 +1,7 @@
 import { InjectQueue } from '@nestjs/bull';
 import { Injectable } from '@nestjs/common';
 import { Queue } from 'bull';
-import { SendMailPayload } from 'src/common/third-party/mailer.service';
+import { SendMailPayload } from '../common/third-party/mailer.service';
 
 import { EMAIL_QUEUE, SEND_EMAIL_JOB } from './email.constants';
 

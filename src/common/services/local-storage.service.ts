@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { existsSync, mkdirSync, promises as fs } from 'fs';
 import { join } from 'path';
-import { AppConfiguration } from 'src/config/configuration';
+import { AppConfiguration } from '../../config/configuration';
 
 @Injectable()
 export class LocalStorageService {

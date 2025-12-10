@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OAuth2Client, TokenPayload } from 'google-auth-library';
-import { AppConfiguration } from 'src/config/configuration';
+import { AppConfiguration } from '../config/configuration';
 
 export interface GoogleProfile {
   email: string;

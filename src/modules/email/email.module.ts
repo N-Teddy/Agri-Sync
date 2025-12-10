@@ -1,6 +1,6 @@
 import { BullModule } from '@nestjs/bull';
 import { Module } from '@nestjs/common';
-import { MailerService } from 'src/common/third-party/mailer.service';
+import { MailerService } from '../common/third-party/mailer.service';
 
 import { EMAIL_QUEUE } from './email.constants';
 import { EmailQueueService } from './email-queue.service';

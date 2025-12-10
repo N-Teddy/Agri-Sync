@@ -3,7 +3,7 @@ import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule, SwaggerCustomOptions } from '@nestjs/swagger';
 import helmet from 'helmet';
-import type { AppConfiguration } from 'src/config/configuration';
+import type { AppConfiguration } from '../../config/configuration';
 
 import { AllExceptionsFilter } from '../filters/http-exception.filter';
 import { ResponseInterceptor } from '../interceptors/response.interceptor';

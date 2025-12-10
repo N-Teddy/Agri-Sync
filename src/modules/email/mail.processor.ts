@@ -4,7 +4,7 @@ import { Job } from 'bull';
 import {
   MailerService,
   SendMailPayload,
-} from 'src/common/third-party/mailer.service';
+} from '../common/third-party/mailer.service';
 
 import { EMAIL_QUEUE, SEND_EMAIL_JOB } from './email.constants';
 

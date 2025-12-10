@@ -10,11 +10,11 @@ import { randomBytes } from 'crypto';
 import { Express } from 'express';
 import { promises as fs } from 'fs';
 import { extname } from 'path';
-import { LocalStorageService } from 'src/common/services/local-storage.service';
-import { CloudinaryService } from 'src/common/third-party/cloudinary.service';
-import { GoogleAuthService } from 'src/common/third-party/google-auth.service';
-import { AppConfiguration } from 'src/config/configuration';
-import { User } from 'src/entities';
+import { LocalStorageService } from '../../common/services/local-storage.service';
+import { CloudinaryService } from '../../common/third-party/cloudinary.service';
+import { GoogleAuthService } from '../../common/third-party/google-auth.service';
+import { AppConfiguration } from '../../config/configuration';
+import { User } from '../../entities';
 
 import { EmailQueueService } from '../email/email-queue.service';
 import { UsersService } from '../users/users.service';
@@ -46,7 +46,7 @@ export class AuthService {
     private readonly googleAuthService: GoogleAuthService,
     private readonly cloudinaryService: CloudinaryService,
     private readonly localStorageService: LocalStorageService,
-  ) {}
+  ) { }
 
   async register(payload: RegisterDto): Promise<AuthResponse> {
     const existingUser = await this.usersService.findByEmail(

@@ -16,9 +16,9 @@ import { memoryStorage } from 'multer';
 import {
   CurrentUser,
   RequestUser,
-} from 'src/common/decorators/current-user.decorator';
-import { Public } from 'src/common/decorators/public.decorator';
-import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+} from '../../common/decorators/current-user.decorator';
+import { Public } from '../../common/decorators/public.decorator';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 
 import { AuthResponse, AuthService } from './auth.service';
 import { GoogleAuthDto } from './dto/google-auth.dto';
@@ -30,7 +30,7 @@ import { VerifyEmailDto } from './dto/verify-email.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
   @Public()
   @Post('register')
   register(@Body() dto: RegisterDto): Promise<AuthResponse> {

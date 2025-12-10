@@ -2,10 +2,10 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule, JwtSignOptions } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { LocalStorageService } from 'src/common/services/local-storage.service';
-import { CloudinaryService } from 'src/common/third-party/cloudinary.service';
-import { GoogleAuthService } from 'src/common/third-party/google-auth.service';
-import { AppConfiguration } from 'src/config/configuration';
+import { LocalStorageService } from '../../common/services/local-storage.service';
+import { CloudinaryService } from '../../common/third-party/cloudinary.service';
+import { GoogleAuthService } from '../../common/third-party/google-auth.service';
+import { AppConfiguration } from '../../config/configuration';
 
 import { EmailModule } from '../email/email.module';
 import { UsersModule } from '../users/users.module';
@@ -46,4 +46,4 @@ import { JwtStrategy } from './strategies/jwt.strategy';
   ],
   controllers: [AuthController],
 })
-export class AuthModule {}
+export class AuthModule { }

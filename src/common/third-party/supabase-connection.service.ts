@@ -1,6 +1,6 @@
 import type { ConfigService } from '@nestjs/config';
 import { Pool } from 'pg';
-import type { AppConfiguration } from 'src/config/configuration';
+import type { AppConfiguration } from '../config/configuration';
 
 interface SupabaseSettings {
   url: string;

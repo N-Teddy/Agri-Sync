@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
-import { Public } from 'src/common/decorators/public.decorator';
-import { buildSuccessResponse } from 'src/common/utils/api-response.util';
+import { Public } from '../common/decorators/public.decorator';
+import { buildSuccessResponse } from '../common/utils/api-response.util';
 
 import { HealthService } from './health.service';
 
