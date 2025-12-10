@@ -30,7 +30,7 @@ export class CloudinaryService {
 
   async uploadImage(
     filePath: string,
-    folder = 'agrisync',
+    folder = 'Agri Sync',
   ): Promise<UploadApiResponse> {
     if (!this.enabled) {
       throw new Error('Cloudinary is not configured');
