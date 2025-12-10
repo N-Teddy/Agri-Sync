@@ -47,7 +47,6 @@ export const buildTypeOrmConfig = (
     ],
     autoLoadEntities: true,
     synchronize: !isProduction,
-    logging: !isProduction,
     ssl: isProduction ? { rejectUnauthorized: false } : undefined,
   };
 };
