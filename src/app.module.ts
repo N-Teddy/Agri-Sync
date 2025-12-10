@@ -15,7 +15,7 @@ import { HealthModule } from './modules/health/health.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: [`.env.${process.env.NODE_ENV ?? 'development'}`, '.env'],
+      envFilePath: ['.env'],
       load: [configuration],
       validate: validateEnv,
     }),
@@ -47,4 +47,4 @@ import { HealthModule } from './modules/health/health.module';
     },
   ],
 })
-export class AppModule {}
+export class AppModule { }
