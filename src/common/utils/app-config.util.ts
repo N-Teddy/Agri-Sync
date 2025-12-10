@@ -12,8 +12,9 @@ export const configureApp = (
   app: INestApplication,
 ): ConfigService<AppConfiguration> => {
   const configService = app.get<ConfigService<AppConfiguration>>(ConfigService);
-  const globalPrefix = configService.get<string>('app.globalPrefix') ?? 'api';
-  const apiVersion = configService.get<string>('app.apiVersion') ?? '1';
+  const appConfig = configService.get<AppConfiguration['app']>('app');
+  const globalPrefix = appConfig?.globalPrefix ?? 'api';
+  const apiVersion = appConfig?.apiVersion ?? '1';
 
   app.setGlobalPrefix(globalPrefix);
   app.enableVersioning({
@@ -35,7 +36,7 @@ export const configureApp = (
   app.use(helmet());
 
   const documentConfig = new DocumentBuilder()
-    .setTitle(configService.get<string>('app.name') ?? 'Agri Sync Pro')
+    .setTitle(appConfig?.name ?? 'Agri Sync Pro')
     .setDescription('Agri Sync API documentation')
     .setVersion(apiVersion)
     .addBearerAuth()

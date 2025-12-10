@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtModule, JwtSignOptions } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { LocalStorageService } from 'src/common/services/local-storage.service';
 import { CloudinaryService } from 'src/common/third-party/cloudinary.service';
@@ -27,10 +27,11 @@ import { JwtStrategy } from './strategies/jwt.strategy';
         if (!jwtConfig) {
           throw new Error('JWT configuration missing');
         }
+        const expiresIn = jwtConfig.expiresIn as JwtSignOptions['expiresIn'];
         return {
           secret: jwtConfig.secret,
           signOptions: {
-            expiresIn: jwtConfig.expiresIn,
+            expiresIn,
           },
         };
       },

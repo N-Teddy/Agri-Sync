@@ -4,7 +4,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
+import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
 import { Express } from 'express';
@@ -244,7 +244,7 @@ export class AuthService {
 
     const payload = { sub: user.id, email: user.email };
     const accessToken = await this.jwtService.signAsync(payload, {
-      expiresIn: jwtConfig.expiresIn,
+      expiresIn: jwtConfig.expiresIn as JwtSignOptions['expiresIn'],
       secret: jwtConfig.secret,
     });
 
@@ -253,9 +253,9 @@ export class AuthService {
       rememberMe: Boolean(rememberMe),
     };
     const refreshToken = await this.jwtService.signAsync(refreshPayload, {
-      expiresIn: rememberMe
+      expiresIn: (rememberMe
         ? jwtConfig.rememberMeRefreshExpiresIn
-        : jwtConfig.refreshExpiresIn,
+        : jwtConfig.refreshExpiresIn) as JwtSignOptions['expiresIn'],
       secret: jwtConfig.refreshSecret,
     });
 
