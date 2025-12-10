@@ -4,7 +4,7 @@ import { Job } from 'bull';
 import {
   MailerService,
   SendMailPayload,
-} from '../common/third-party/mailer.service';
+} from '../../common/third-party/mailer.service';
 
 import { EMAIL_QUEUE, SEND_EMAIL_JOB } from './email.constants';
 
@@ -13,7 +13,7 @@ import { EMAIL_QUEUE, SEND_EMAIL_JOB } from './email.constants';
 export class MailProcessor {
   private readonly logger = new Logger(MailProcessor.name);
 
-  constructor(private readonly mailerService: MailerService) {}
+  constructor(private readonly mailerService: MailerService) { }
 
   @Process(SEND_EMAIL_JOB)
   async handleSendMail(job: Job<SendMailPayload>): Promise<void> {

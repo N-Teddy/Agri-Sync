@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { UploadApiResponse, v2 as cloudinary } from 'cloudinary';
-import { AppConfiguration } from '../config/configuration';
+import { AppConfiguration } from '../../config/configuration';
 
 @Injectable()
 export class CloudinaryService {

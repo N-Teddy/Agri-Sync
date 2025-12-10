@@ -1,6 +1,6 @@
 import type { ConfigService } from '@nestjs/config';
 import { Pool } from 'pg';
-import type { AppConfiguration } from '../config/configuration';
+import type { AppConfiguration } from '../../config/configuration';
 
 interface SupabaseSettings {
   url: string;
@@ -17,7 +17,7 @@ export class SupabaseConnectionService {
 
   constructor(
     private readonly configService: ConfigService<AppConfiguration>,
-  ) {}
+  ) { }
 
   public getDatabaseUrl(): string {
     const supabase = this.ensureConfig();

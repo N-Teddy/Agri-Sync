@@ -1,7 +1,7 @@
 import { InjectQueue } from '@nestjs/bull';
 import { Injectable } from '@nestjs/common';
 import { Queue } from 'bull';
-import { SendMailPayload } from '../common/third-party/mailer.service';
+import { SendMailPayload } from '../../common/third-party/mailer.service';
 
 import { EMAIL_QUEUE, SEND_EMAIL_JOB } from './email.constants';
 
@@ -10,7 +10,7 @@ export class EmailQueueService {
   constructor(
     @InjectQueue(EMAIL_QUEUE)
     private readonly emailQueue: Queue<SendMailPayload>,
-  ) {}
+  ) { }
 
   async enqueueEmail(payload: SendMailPayload): Promise<void> {
     await this.emailQueue.add(SEND_EMAIL_JOB, payload, {

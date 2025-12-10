@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import nodemailer, { Transporter } from 'nodemailer';
-import { AppConfiguration } from '../config/configuration';
+import { AppConfiguration } from '../../config/configuration';
 
 export interface SendMailPayload {
   to: string;
