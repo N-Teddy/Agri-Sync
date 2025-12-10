@@ -22,5 +22,14 @@
     "noFallthroughCasesInSwitch": true,
     "resolveJsonModule": true,
     "types": ["node", "jest"]
-  }
+  },
+  "plugins": [
+    {
+      "name": "@nestjs/swagger/plugin",
+      "options": {
+        "classValidatorShim": true,
+        "introspectComments": true
+      }
+    }
+  ]
 }
