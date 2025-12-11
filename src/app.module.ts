@@ -9,7 +9,9 @@ import configuration, { AppConfiguration } from './config/configuration';
 import { validateEnv } from './config/env.validation';
 import { buildTypeOrmConfig } from './config/typeorm.config';
 import { AuthModule } from './modules/auth/auth.module';
+import { CropManagementModule } from './modules/crop-management/crop-management.module';
 import { HealthModule } from './modules/health/health.module';
+import { PlantationsModule } from './modules/plantations/plantations.module';
 
 @Module({
   imports: [
@@ -39,6 +41,8 @@ import { HealthModule } from './modules/health/health.module';
     }),
     AuthModule,
     HealthModule,
+    PlantationsModule,
+    CropManagementModule,
   ],
   providers: [
     {
