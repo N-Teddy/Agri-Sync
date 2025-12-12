@@ -1,18 +1,19 @@
 import {
-  CreateDateColumn,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
+	CreateDateColumn,
+	PrimaryGeneratedColumn,
+	UpdateDateColumn,
 } from 'typeorm';
 
-const dateColumnType = process.env.NODE_ENV === 'test' ? 'datetime' : 'timestamptz';
+const dateColumnType =
+	process.env.NODE_ENV === 'test' ? 'datetime' : 'timestamptz';
 
 export abstract class BaseEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id!: string;
+	@PrimaryGeneratedColumn('uuid')
+	id!: string;
 
-  @CreateDateColumn({ type: dateColumnType })
-  createdAt!: Date;
+	@CreateDateColumn({ type: dateColumnType })
+	createdAt!: Date;
 
-  @UpdateDateColumn({ type: dateColumnType })
-  updatedAt!: Date;
+	@UpdateDateColumn({ type: dateColumnType })
+	updatedAt!: Date;
 }

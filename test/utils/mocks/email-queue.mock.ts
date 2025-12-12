@@ -4,9 +4,9 @@ import type { SendMailPayload } from '../../../src/common/third-party/mailer.ser
 
 @Injectable()
 export class MockEmailQueueService {
-  public jobs: SendMailPayload[] = [];
+	public jobs: SendMailPayload[] = [];
 
-  async enqueueEmail(payload: SendMailPayload): Promise<void> {
-    this.jobs.push(payload);
-  }
+	async enqueueEmail(payload: SendMailPayload): Promise<void> {
+		this.jobs.push(payload);
+	}
 }

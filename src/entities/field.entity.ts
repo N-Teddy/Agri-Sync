@@ -12,55 +12,55 @@ import { WeatherData } from './weather-data.entity';
 const isTestEnv = process.env.NODE_ENV === 'test';
 
 const boundaryColumnOptions: ColumnOptions = isTestEnv
-  ? {
-    type: 'simple-json',
-    nullable: true,
-  }
-  : {
-    type: 'geometry',
-    spatialFeatureType: 'Polygon',
-    srid: 4326,
-    nullable: true,
-  };
+	? {
+			type: 'simple-json',
+			nullable: true,
+		}
+	: {
+			type: 'geometry',
+			spatialFeatureType: 'Polygon',
+			srid: 4326,
+			nullable: true,
+		};
 
 @Entity({ name: 'fields' })
 export class Field extends BaseEntity {
-  @Column({ type: 'varchar', length: 255 })
-  name!: string;
+	@Column({ type: 'varchar', length: 255 })
+	name!: string;
 
-  @Column(boundaryColumnOptions)
-  boundary?: Record<string, unknown>;
+	@Column(boundaryColumnOptions)
+	boundary?: Record<string, unknown>;
 
-  @Column({ type: 'numeric', precision: 10, scale: 2, nullable: true })
-  areaHectares?: string;
+	@Column({ type: 'numeric', precision: 10, scale: 2, nullable: true })
+	areaHectares?: string;
 
-  @Column({ type: 'varchar', length: 100, nullable: true })
-  soilType?: string;
+	@Column({ type: 'varchar', length: 100, nullable: true })
+	soilType?: string;
 
-  @Column({
-    type: 'enum',
-    enum: CropType,
-    nullable: true,
-  })
-  currentCrop?: CropType | null;
+	@Column({
+		type: 'enum',
+		enum: CropType,
+		nullable: true,
+	})
+	currentCrop?: CropType | null;
 
-  @ManyToOne(() => Plantation, (plantation) => plantation.fields, {
-    onDelete: 'CASCADE',
-  })
-  plantation!: Plantation;
+	@ManyToOne(() => Plantation, (plantation) => plantation.fields, {
+		onDelete: 'CASCADE',
+	})
+	plantation!: Plantation;
 
-  @OneToMany(() => PlantingSeason, (season) => season.field)
-  plantingSeasons?: PlantingSeason[];
+	@OneToMany(() => PlantingSeason, (season) => season.field)
+	plantingSeasons?: PlantingSeason[];
 
-  @OneToMany(() => FieldActivity, (activity) => activity.field)
-  activities?: FieldActivity[];
+	@OneToMany(() => FieldActivity, (activity) => activity.field)
+	activities?: FieldActivity[];
 
-  @OneToMany(() => WeatherData, (weather) => weather.field)
-  weatherReadings?: WeatherData[];
+	@OneToMany(() => WeatherData, (weather) => weather.field)
+	weatherReadings?: WeatherData[];
 
-  @OneToMany(() => FinancialRecord, (record) => record.field)
-  financialRecords?: FinancialRecord[];
+	@OneToMany(() => FinancialRecord, (record) => record.field)
+	financialRecords?: FinancialRecord[];
 
-  @OneToMany(() => Alert, (alert) => alert.field)
-  alerts?: Alert[];
+	@OneToMany(() => Alert, (alert) => alert.field)
+	alerts?: Alert[];
 }

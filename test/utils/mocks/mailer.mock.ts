@@ -4,9 +4,9 @@ import type { SendMailPayload } from '../../../src/common/third-party/mailer.ser
 
 @Injectable()
 export class MockMailerService {
-  public sent: SendMailPayload[] = [];
+	public sent: SendMailPayload[] = [];
 
-  async send(payload: SendMailPayload): Promise<void> {
-    this.sent.push(payload);
-  }
+	async send(payload: SendMailPayload): Promise<void> {
+		this.sent.push(payload);
+	}
 }

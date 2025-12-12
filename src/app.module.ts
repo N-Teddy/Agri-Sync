@@ -2,6 +2,7 @@ import { BullModule } from '@nestjs/bull';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
+import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
@@ -10,51 +11,53 @@ import { validateEnv } from './config/env.validation';
 import { buildTypeOrmConfig } from './config/typeorm.config';
 import { AuthModule } from './modules/auth/auth.module';
 import { CropManagementModule } from './modules/crop-management/crop-management.module';
-import { HealthModule } from './modules/health/health.module';
-import { FinancialModule } from './modules/financial/financial.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
-import { WeatherModule } from './modules/weather/weather.module';
+import { FinancialModule } from './modules/financial/financial.module';
+import { HealthModule } from './modules/health/health.module';
 import { PlantationsModule } from './modules/plantations/plantations.module';
+import { WeatherModule } from './modules/weather/weather.module';
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: ['.env'],
-      load: [configuration],
-      validate: validateEnv,
-    }),
-    TypeOrmModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService<AppConfiguration>) =>
-        buildTypeOrmConfig(configService),
-    }),
-    BullModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService<AppConfiguration>) => {
-        const redis = configService.get<AppConfiguration['redis']>('redis');
-        return {
-          redis: {
-            host: redis?.host,
-            port: redis?.port,
-            password: redis?.password,
-          },
-        };
-      },
-    }),
-    AuthModule,
-    HealthModule,
-    PlantationsModule,
-    CropManagementModule,
-    FinancialModule,
-    DashboardModule,
-    WeatherModule,
-  ],
-  providers: [
-    {
-      provide: APP_GUARD,
-      useClass: JwtAuthGuard,
-    },
-  ],
+	imports: [
+		ConfigModule.forRoot({
+			isGlobal: true,
+			envFilePath: ['.env'],
+			load: [configuration],
+			validate: validateEnv,
+		}),
+		TypeOrmModule.forRootAsync({
+			inject: [ConfigService],
+			useFactory: (configService: ConfigService<AppConfiguration>) =>
+				buildTypeOrmConfig(configService),
+		}),
+		BullModule.forRootAsync({
+			inject: [ConfigService],
+			useFactory: (configService: ConfigService<AppConfiguration>) => {
+				const redis =
+					configService.get<AppConfiguration['redis']>('redis');
+				return {
+					redis: {
+						host: redis?.host,
+						port: redis?.port,
+						password: redis?.password,
+					},
+				};
+			},
+		}),
+		ScheduleModule.forRoot(),
+		AuthModule,
+		HealthModule,
+		PlantationsModule,
+		CropManagementModule,
+		FinancialModule,
+		DashboardModule,
+		WeatherModule,
+	],
+	providers: [
+		{
+			provide: APP_GUARD,
+			useClass: JwtAuthGuard,
+		},
+	],
 })
-export class AppModule { }
+export class AppModule {}

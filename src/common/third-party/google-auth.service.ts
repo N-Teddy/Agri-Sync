@@ -1,52 +1,55 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OAuth2Client, TokenPayload } from 'google-auth-library';
+
 import { AppConfiguration } from '../../config/configuration';
 
 export interface GoogleProfile {
-  email: string;
-  emailVerified: boolean;
-  name?: string;
-  picture?: string;
-  sub: string;
+	email: string;
+	emailVerified: boolean;
+	name?: string;
+	picture?: string;
+	sub: string;
 }
 
 @Injectable()
 export class GoogleAuthService {
-  private readonly client: OAuth2Client;
+	private readonly client: OAuth2Client;
 
-  constructor(private readonly configService: ConfigService<AppConfiguration>) {
-    const googleConfig =
-      this.configService.get<AppConfiguration['google']>('google');
-    if (!googleConfig?.clientId) {
-      throw new Error('Google OAuth is not configured');
-    }
+	constructor(
+		private readonly configService: ConfigService<AppConfiguration>
+	) {
+		const googleConfig =
+			this.configService.get<AppConfiguration['google']>('google');
+		if (!googleConfig?.clientId) {
+			throw new Error('Google OAuth is not configured');
+		}
 
-    this.client = new OAuth2Client(
-      googleConfig.clientId,
-      googleConfig.clientSecret,
-    );
-  }
+		this.client = new OAuth2Client(
+			googleConfig.clientId,
+			googleConfig.clientSecret
+		);
+	}
 
-  async verifyIdToken(idToken: string): Promise<GoogleProfile> {
-    const googleConfig =
-      this.configService.get<AppConfiguration['google']>('google');
-    const ticket = await this.client.verifyIdToken({
-      idToken,
-      audience: googleConfig?.clientId,
-    });
+	async verifyIdToken(idToken: string): Promise<GoogleProfile> {
+		const googleConfig =
+			this.configService.get<AppConfiguration['google']>('google');
+		const ticket = await this.client.verifyIdToken({
+			idToken,
+			audience: googleConfig?.clientId,
+		});
 
-    const payload = ticket.getPayload() as TokenPayload;
-    if (!payload?.email || !payload.sub) {
-      throw new Error('Google token payload missing email or subject');
-    }
+		const payload = ticket.getPayload() as TokenPayload;
+		if (!payload?.email || !payload.sub) {
+			throw new Error('Google token payload missing email or subject');
+		}
 
-    return {
-      email: payload.email,
-      emailVerified: Boolean(payload.email_verified),
-      name: payload.name ?? undefined,
-      picture: payload.picture ?? undefined,
-      sub: payload.sub,
-    };
-  }
+		return {
+			email: payload.email,
+			emailVerified: Boolean(payload.email_verified),
+			name: payload.name ?? undefined,
+			picture: payload.picture ?? undefined,
+			sub: payload.sub,
+		};
+	}
 }

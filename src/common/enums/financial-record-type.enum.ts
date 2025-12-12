@@ -1,4 +1,4 @@
 export enum FinancialRecordType {
-  COST = 'cost',
-  REVENUE = 'revenue',
+	COST = 'cost',
+	REVENUE = 'revenue',
 }

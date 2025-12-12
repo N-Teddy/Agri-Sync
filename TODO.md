@@ -17,43 +17,26 @@
 
 ### 1. Weather Data Ingestion & Cron Job
 
-**Status:** ❌ Not Implemented
+**Status:** ✅ Implemented
 **Priority:** CRITICAL
-**Estimated Time:** 4-6 hours
+**Completed:** 2025-12-12
 
-**Requirements:**
+**Implementation Summary:**
 
-- [ ] Set up cron job to fetch weather data every 3 hours
-- [ ] Integrate OpenWeatherMap API (or alternative)
-- [ ] Fetch weather for all active fields based on their coordinates
-- [ ] Store current weather and 3-day forecast in `weather_data` table
-- [ ] Handle API rate limits and errors gracefully
-- [ ] Add logging for weather fetch operations
+- ✅ Created `WeatherCronService` with automated weather fetching
+- ✅ Cron job runs every 3 hours (00:00, 03:00, 06:00, 09:00, 12:00, 15:00, 18:00, 21:00)
+- ✅ Fetches current weather and 3-day forecast for all fields
+- ✅ Processes fields in batches of 10 to respect API rate limits
+- ✅ Includes error handling and logging
+- ✅ Added daily cleanup job to remove weather data older than 30 days
+- ✅ Integrated with existing OpenWeatherMap API
+- ✅ Configured ScheduleModule in app.module.ts
 
-**Implementation Details:**
+**Files Modified:**
 
-```typescript
-// src/modules/weather/weather-cron.service.ts
-@Injectable()
-export class WeatherCronService {
-  @Cron('0 */3 * * *') // Every 3 hours
-  async fetchWeatherForAllFields() {
-    // 1. Get all active fields with coordinates
-    // 2. Fetch weather from OpenWeatherMap API
-    // 3. Store in weather_data table
-    // 4. Mark is_forecast = false for current weather
-    // 5. Store 3-day forecast with is_forecast = true
-  }
-}
-```
-
-**API Endpoints Needed:**
-
-- None (background job only)
-
-**Database Changes:**
-
-- Ensure `weather_data` table has proper indexes on `field_id` and `recorded_at`
+- `src/modules/weather/weather-cron.service.ts` (created)
+- `src/modules/weather/weather.module.ts` (updated)
+- `src/app.module.ts` (added ScheduleModule)
 
 ---
 

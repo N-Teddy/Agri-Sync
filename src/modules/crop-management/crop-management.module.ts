@@ -4,7 +4,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Field } from '../../entities/field.entity';
 import { FieldActivity } from '../../entities/field-activity.entity';
 import { PlantingSeason } from '../../entities/planting-season.entity';
-
 import { FieldsModule } from '../fields/fields.module';
 import { FinancialModule } from '../financial/financial.module';
 import { FieldActivitiesController } from './field-activities.controller';
@@ -13,15 +12,12 @@ import { PlantingSeasonsController } from './planting-seasons.controller';
 import { PlantingSeasonsService } from './planting-seasons.service';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Field, PlantingSeason, FieldActivity]),
-    FieldsModule,
-    FinancialModule,
-  ],
-  controllers: [PlantingSeasonsController, FieldActivitiesController],
-  providers: [
-    PlantingSeasonsService,
-    FieldActivitiesService,
-  ],
+	imports: [
+		TypeOrmModule.forFeature([Field, PlantingSeason, FieldActivity]),
+		FieldsModule,
+		FinancialModule,
+	],
+	controllers: [PlantingSeasonsController, FieldActivitiesController],
+	providers: [PlantingSeasonsService, FieldActivitiesService],
 })
-export class CropManagementModule { }
+export class CropManagementModule {}

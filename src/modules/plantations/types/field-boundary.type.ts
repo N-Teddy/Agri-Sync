@@ -1,4 +1,4 @@
 export interface FieldBoundary {
-  type: 'Polygon';
-  coordinates: number[][][];
+	type: 'Polygon';
+	coordinates: number[][][];
 }
