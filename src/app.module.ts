@@ -14,6 +14,7 @@ import { AlertsModule } from './modules/alerts/alerts.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { CropManagementModule } from './modules/crop-management/crop-management.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
+import { ExportModule } from './modules/export/export.module';
 import { FinancialModule } from './modules/financial/financial.module';
 import { HealthModule } from './modules/health/health.module';
 import { PlantationsModule } from './modules/plantations/plantations.module';
@@ -57,6 +58,7 @@ import { WeatherModule } from './modules/weather/weather.module';
     FinancialModule,
     DashboardModule,
     ReportsModule,
+    ExportModule,
     WeatherModule,
   ],
   providers: [
