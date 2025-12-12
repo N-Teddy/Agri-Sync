@@ -11,6 +11,8 @@ import { buildTypeOrmConfig } from './config/typeorm.config';
 import { AuthModule } from './modules/auth/auth.module';
 import { CropManagementModule } from './modules/crop-management/crop-management.module';
 import { HealthModule } from './modules/health/health.module';
+import { FinancialModule } from './modules/financial/financial.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { PlantationsModule } from './modules/plantations/plantations.module';
 
 @Module({
@@ -43,6 +45,8 @@ import { PlantationsModule } from './modules/plantations/plantations.module';
     HealthModule,
     PlantationsModule,
     CropManagementModule,
+    FinancialModule,
+    DashboardModule,
   ],
   providers: [
     {

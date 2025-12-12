@@ -6,6 +6,7 @@ import { FieldActivity } from '../../entities/field-activity.entity';
 import { PlantingSeason } from '../../entities/planting-season.entity';
 
 import { FieldsModule } from '../fields/fields.module';
+import { FinancialModule } from '../financial/financial.module';
 import { FieldActivitiesController } from './field-activities.controller';
 import { FieldActivitiesService } from './field-activities.service';
 import { PlantingSeasonsController } from './planting-seasons.controller';
@@ -15,6 +16,7 @@ import { PlantingSeasonsService } from './planting-seasons.service';
   imports: [
     TypeOrmModule.forFeature([Field, PlantingSeason, FieldActivity]),
     FieldsModule,
+    FinancialModule,
   ],
   controllers: [PlantingSeasonsController, FieldActivitiesController],
   providers: [

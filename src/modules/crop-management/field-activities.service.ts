@@ -6,10 +6,11 @@ import { PlantingSeasonStatus } from '../../common/enums/planting-season-status.
 import { FieldActivity } from '../../entities/field-activity.entity';
 import { PlantingSeason } from '../../entities/planting-season.entity';
 
-import { CreateFieldActivityDto } from './dto/create-field-activity.dto';
+import { normalizeDateInput } from '../../common/utils/date.util';
 import { FieldActivitiesFilterDto } from './dto/field-activities-filter.dto';
 import { FieldAccessService } from '../fields/field-access.service';
-import { normalizeDateInput } from './utils/date.util';
+import { FinancialRecordsService } from '../financial/financial-records.service';
+import { CreateFieldActivityDto } from './dto/create-field-activity.dto';
 
 @Injectable()
 export class FieldActivitiesService {
@@ -19,6 +20,7 @@ export class FieldActivitiesService {
     @InjectRepository(PlantingSeason)
     private readonly plantingSeasonsRepository: Repository<PlantingSeason>,
     private readonly fieldAccessService: FieldAccessService,
+    private readonly financialRecordsService: FinancialRecordsService,
   ) { }
 
   async logActivity(
@@ -46,7 +48,18 @@ export class FieldActivitiesService {
           : undefined,
     });
 
-    return this.fieldActivitiesRepository.save(activity);
+    const savedActivity = await this.fieldActivitiesRepository.save(activity);
+
+    if (typeof dto.inputCostXaf === 'number' && dto.inputCostXaf > 0) {
+      await this.financialRecordsService.recordActivityCost(field, {
+        amountXaf: dto.inputCostXaf,
+        recordDate: activityDate,
+        description: dto.notes,
+        productName: dto.inputProduct,
+      });
+    }
+
+    return savedActivity;
   }
 
   async getActivities(
