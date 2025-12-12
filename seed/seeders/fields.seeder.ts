@@ -1,3 +1,4 @@
+import { BaseApiResponse } from '../config';
 import { ApiClient } from '../utils/api-client';
 import { generateFieldData } from '../utils/data-generators';
 
@@ -19,11 +20,13 @@ export class FieldsSeeder {
 
         for (let i = 0; i < count; i++) {
             const data = generateFieldData();
-            const field = await this.apiClient.post<Field>(
+            const response = await this.apiClient.post<BaseApiResponse<Field>>(
                 `/plantations/${plantationId}/fields`,
                 data
             );
-            fields.push(field);
+            if (response.data) {
+                fields.push(response.data);
+            }
         }
 
         console.log(`   ✅ Created ${fields.length} fields`);

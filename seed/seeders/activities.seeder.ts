@@ -1,3 +1,4 @@
+import { BaseApiResponse } from '../config';
 import { ApiClient } from '../utils/api-client';
 import { generateActivityData } from '../utils/data-generators';
 
@@ -28,11 +29,13 @@ export class ActivitiesSeeder {
                 plantingSeasonId: seasonId,
             };
 
-            const activity = await this.apiClient.post<FieldActivity>(
+            const response = await this.apiClient.post<BaseApiResponse<FieldActivity>>(
                 `/fields/${fieldId}/activities`,
                 data
             );
-            activities.push(activity);
+            if (response.data) {
+                activities.push(response.data);
+            }
         }
 
         console.log(`         ✅ Created ${activities.length} activities`);

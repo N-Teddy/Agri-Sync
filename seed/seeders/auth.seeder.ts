@@ -1,6 +1,6 @@
 import { ApiClient } from '../utils/api-client';
 import { generateUserData } from '../utils/data-generators';
-import { USER_CREDENTIALS } from '../config';
+import { BaseApiResponse, USER_CREDENTIALS } from '../config';
 
 export interface AuthResponse {
     accessToken: string;
@@ -21,7 +21,7 @@ export class AuthSeeder {
         console.log(`📝 Registering user: ${userData.email}`);
 
         // Register
-        const registerResponse = await this.apiClient.post<AuthResponse>(
+        const response = await this.apiClient.post<BaseApiResponse<AuthResponse>>(
             '/auth/register',
             {
                 ...userData,
@@ -30,18 +30,22 @@ export class AuthSeeder {
             }
         );
 
+        if (!response.data) {
+            throw new Error('No data returned from register');
+        }
+
         // Set token for subsequent requests
-        this.apiClient.setAccessToken(registerResponse.accessToken);
+        this.apiClient.setAccessToken(response.data.accessToken);
 
         console.log(`✅ User registered and logged in: ${userData.email}`);
 
-        return registerResponse;
+        return response.data;
     }
 
     async login(email: string): Promise<AuthResponse> {
         console.log(`🔐 Logging in: ${email}`);
 
-        const loginResponse = await this.apiClient.post<AuthResponse>(
+        const response = await this.apiClient.post<BaseApiResponse<AuthResponse>>(
             '/auth/login',
             {
                 email,
@@ -50,10 +54,14 @@ export class AuthSeeder {
             }
         );
 
-        this.apiClient.setAccessToken(loginResponse.accessToken);
+        if (!response.data) {
+            throw new Error('No data returned from login');
+        }
+
+        this.apiClient.setAccessToken(response.data.accessToken);
 
         console.log(`✅ Logged in: ${email}`);
 
-        return loginResponse;
+        return response.data;
     }
 }

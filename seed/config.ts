@@ -19,3 +19,9 @@ export const USER_CREDENTIALS = {
     password: 'Test@1234',
     rememberMe: true,
 };
+
+export interface BaseApiResponse<T> {
+    status: 'success' | 'error' | 'fail';
+    message: string;
+    data?: T;
+}

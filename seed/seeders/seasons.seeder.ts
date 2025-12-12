@@ -1,3 +1,4 @@
+import { BaseApiResponse } from '../config';
 import { ApiClient } from '../utils/api-client';
 import { generateSeasonData } from '../utils/data-generators';
 
@@ -18,11 +19,13 @@ export class SeasonsSeeder {
 
         for (let i = 0; i < count; i++) {
             const data = generateSeasonData();
-            const season = await this.apiClient.post<PlantingSeason>(
+            const response = await this.apiClient.post<BaseApiResponse<PlantingSeason>>(
                 `/fields/${fieldId}/seasons`,
                 data
             );
-            seasons.push(season);
+            if (response.data) {
+                seasons.push(response.data);
+            }
         }
 
         console.log(`      ✅ Created ${seasons.length} seasons`);

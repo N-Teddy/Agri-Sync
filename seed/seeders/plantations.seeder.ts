@@ -1,3 +1,4 @@
+import { BaseApiResponse } from '../config';
 import { ApiClient } from '../utils/api-client';
 import { generatePlantationData } from '../utils/data-generators';
 
@@ -17,11 +18,13 @@ export class PlantationsSeeder {
 
         for (let i = 0; i < count; i++) {
             const data = generatePlantationData();
-            const plantation = await this.apiClient.post<Plantation>(
+            const response = await this.apiClient.post<BaseApiResponse<Plantation>>(
                 '/plantations',
                 data
             );
-            plantations.push(plantation);
+            if (response.data) {
+                plantations.push(response.data);
+            }
         }
 
         console.log(`✅ Created ${plantations.length} plantations`);

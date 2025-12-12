@@ -1,3 +1,4 @@
+import { BaseApiResponse } from '../config';
 import { ApiClient } from '../utils/api-client';
 import { generateFinancialData } from '../utils/data-generators';
 
@@ -18,11 +19,13 @@ export class FinancialSeeder {
 
         for (let i = 0; i < count; i++) {
             const data = generateFinancialData();
-            const record = await this.apiClient.post<FinancialRecord>(
+            const response = await this.apiClient.post<BaseApiResponse<FinancialRecord>>(
                 `/fields/${fieldId}/financial-records`,
                 data
             );
-            records.push(record);
+            if (response.data) {
+                records.push(response.data);
+            }
         }
 
         console.log(`      ✅ Created ${records.length} financial records`);

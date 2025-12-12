@@ -1,3 +1,4 @@
+import { BaseApiResponse } from '../config';
 import { ApiClient } from '../utils/api-client';
 import { generateImageBuffer } from '../utils/data-generators';
 
@@ -21,13 +22,15 @@ export class PhotosSeeder {
         const imageBuffer = generateImageBuffer();
 
         for (let i = 0; i < count; i++) {
-            const photo = await this.apiClient.uploadFile<ActivityPhoto>(
+            const response = await this.apiClient.uploadFile<BaseApiResponse<ActivityPhoto>>(
                 `/fields/${fieldId}/activities/${activityId}/photos`,
                 imageBuffer,
                 `photo-${i}.png`,
                 { caption: `Sample photo ${i + 1}` }
             );
-            photos.push(photo);
+            if (response.data) {
+                photos.push(response.data);
+            }
         }
 
         console.log(`            ✅ Uploaded ${photos.length} photos`);
