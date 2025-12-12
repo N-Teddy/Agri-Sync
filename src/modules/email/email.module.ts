@@ -2,6 +2,7 @@ import { BullModule } from '@nestjs/bull';
 import { Module } from '@nestjs/common';
 
 import { MailerService } from '../../common/third-party/mailer.service';
+import { AlertEmailService } from './alert-email.service';
 import { EMAIL_QUEUE } from './email.constants';
 import { EmailQueueService } from './email-queue.service';
 import { MailProcessor } from './mail.processor';
@@ -12,7 +13,12 @@ import { MailProcessor } from './mail.processor';
 			name: EMAIL_QUEUE,
 		}),
 	],
-	providers: [MailerService, MailProcessor, EmailQueueService],
-	exports: [EmailQueueService],
+	providers: [
+		MailerService,
+		MailProcessor,
+		EmailQueueService,
+		AlertEmailService,
+	],
+	exports: [EmailQueueService, AlertEmailService],
 })
-export class EmailModule {}
+export class EmailModule { }

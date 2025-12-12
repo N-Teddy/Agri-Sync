@@ -6,6 +6,7 @@ import { AlertSeverity } from '../../common/enums/alert-severity.enum';
 import { AlertType } from '../../common/enums/alert-type.enum';
 import { Alert } from '../../entities/alert.entity';
 import { Field } from '../../entities/field.entity';
+import { AlertEmailService } from '../email/alert-email.service';
 import { NormalizedWeatherReading } from './interfaces/weather-reading.interface';
 
 const ALERT_SUPPRESSION_HOURS = 6;
@@ -14,8 +15,9 @@ const ALERT_SUPPRESSION_HOURS = 6;
 export class WeatherAlertsService {
 	constructor(
 		@InjectRepository(Alert)
-		private readonly alertsRepository: Repository<Alert>
-	) {}
+		private readonly alertsRepository: Repository<Alert>,
+		private readonly alertEmailService: AlertEmailService
+	) { }
 
 	async evaluate(
 		field: Field,
@@ -115,7 +117,7 @@ export class WeatherAlertsService {
 		if (
 			recentAlert &&
 			recentAlert.triggeredAt >=
-				this.subtractHours(new Date(), ALERT_SUPPRESSION_HOURS)
+			this.subtractHours(new Date(), ALERT_SUPPRESSION_HOURS)
 		) {
 			return undefined;
 		}
@@ -137,7 +139,22 @@ export class WeatherAlertsService {
 			},
 		});
 
-		return this.alertsRepository.save(alert);
+		const savedAlert = await this.alertsRepository.save(alert);
+
+		// Send email notification for high severity alerts
+		if (
+			savedAlert.severity === AlertSeverity.HIGH &&
+			payload.field.plantation?.owner
+		) {
+			// Send email asynchronously (don't await)
+			this.alertEmailService
+				.sendAlertEmail(savedAlert, payload.field.plantation.owner)
+				.catch(() => {
+					// Email failure shouldn't block alert creation
+				});
+		}
+
+		return savedAlert;
 	}
 
 	private subtractHours(date: Date, hours: number) {
