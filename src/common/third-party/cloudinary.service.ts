@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { UploadApiResponse, v2 as cloudinary } from 'cloudinary';
 
 import { AppConfiguration } from '../../config/configuration';
+import { ImageType } from '../enums/image-type.enum';
 
 @Injectable()
 export class CloudinaryService {
@@ -17,8 +18,8 @@ export class CloudinaryService {
 			);
 		this.enabled = Boolean(
 			cloudConfig?.cloudName &&
-				cloudConfig?.apiKey &&
-				cloudConfig?.apiSecret
+			cloudConfig?.apiKey &&
+			cloudConfig?.apiSecret
 		);
 
 		if (this.enabled) {
@@ -37,11 +38,14 @@ export class CloudinaryService {
 
 	async uploadImage(
 		filePath: string,
-		folder = 'Agri Sync'
+		imageType: ImageType = ImageType.ACTIVITY
 	): Promise<UploadApiResponse> {
 		if (!this.enabled) {
 			throw new Error('Cloudinary is not configured');
 		}
+
+		// Create folder path: AgriSync/{imageType}
+		const folder = `AgriSync/${imageType}`;
 
 		return cloudinary.uploader.upload(filePath, {
 			folder,

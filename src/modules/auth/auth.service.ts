@@ -11,6 +11,7 @@ import { Express } from 'express';
 import { promises as fs } from 'fs';
 import { extname } from 'path';
 
+import { ImageType } from '../../common/enums/image-type.enum';
 import { LocalStorageService } from '../../common/services/local-storage.service';
 import { CloudinaryService } from '../../common/third-party/cloudinary.service';
 import { GoogleAuthService } from '../../common/third-party/google-auth.service';
@@ -46,7 +47,7 @@ export class AuthService {
 		private readonly googleAuthService: GoogleAuthService,
 		private readonly cloudinaryService: CloudinaryService,
 		private readonly localStorageService: LocalStorageService
-	) {}
+	) { }
 
 	async register(payload: RegisterDto): Promise<AuthResponse> {
 		const existingUser = await this.usersService.findByEmail(
@@ -227,7 +228,8 @@ export class AuthService {
 		const filename = `${userId}-${Date.now()}${extension}`;
 		const localPath = await this.localStorageService.saveFile(
 			file.buffer,
-			filename
+			filename,
+			ImageType.AVATAR
 		);
 		const appConfig = this.getAppConfig();
 		let avatarUrl = localPath;
@@ -238,7 +240,7 @@ export class AuthService {
 		) {
 			const response = await this.cloudinaryService.uploadImage(
 				localPath,
-				'avatars'
+				ImageType.AVATAR
 			);
 			avatarUrl = response.secure_url;
 			await fs.unlink(localPath).catch(() => undefined);

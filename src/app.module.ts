@@ -6,6 +6,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
+import { CommonServicesModule } from './common/services/common-services.module';
 import configuration, { AppConfiguration } from './config/configuration';
 import { validateEnv } from './config/env.validation';
 import { buildTypeOrmConfig } from './config/typeorm.config';
@@ -46,6 +47,7 @@ import { WeatherModule } from './modules/weather/weather.module';
       },
     }),
     ScheduleModule.forRoot(),
+    CommonServicesModule,
     AlertsModule,
     AuthModule,
     HealthModule,

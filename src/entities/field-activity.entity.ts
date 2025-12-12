@@ -1,6 +1,7 @@
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 
 import { ActivityType } from '../common/enums/activity-type.enum';
+import { ActivityPhoto } from './activity-photo.entity';
 import { BaseEntity } from './base.entity';
 import { Field } from './field.entity';
 import { PlantingSeason } from './planting-season.entity';
@@ -35,4 +36,7 @@ export class FieldActivity extends BaseEntity {
 
 	@Column({ type: 'numeric', precision: 12, scale: 2, nullable: true })
 	inputCostXaf?: string;
+
+	@OneToMany(() => ActivityPhoto, (photo) => photo.activity)
+	photos?: ActivityPhoto[];
 }

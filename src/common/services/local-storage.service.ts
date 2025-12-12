@@ -4,6 +4,7 @@ import { existsSync, mkdirSync, promises as fs } from 'fs';
 import { join } from 'path';
 
 import { AppConfiguration } from '../../config/configuration';
+import { ImageType } from '../enums/image-type.enum';
 
 @Injectable()
 export class LocalStorageService {
@@ -24,9 +25,29 @@ export class LocalStorageService {
 		}
 	}
 
-	async saveFile(buffer: Buffer, filename: string): Promise<string> {
-		const filePath = join(this.uploadsDir, filename);
+	async saveFile(
+		buffer: Buffer,
+		filename: string,
+		imageType?: ImageType
+	): Promise<string> {
+		// Create subfolder if imageType is provided
+		const targetDir = imageType
+			? join(this.uploadsDir, imageType)
+			: this.uploadsDir;
+
+		// Ensure the target directory exists
+		if (!existsSync(targetDir)) {
+			mkdirSync(targetDir, { recursive: true });
+		}
+
+		const filePath = join(targetDir, filename);
 		await fs.writeFile(filePath, buffer);
-		return filePath;
+
+		// Return relative path from uploads directory
+		return imageType ? join(imageType, filename) : filename;
+	}
+
+	getFilePath(relativePath: string): string {
+		return join(this.uploadsDir, relativePath);
 	}
 }

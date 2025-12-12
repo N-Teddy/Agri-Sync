@@ -156,71 +156,64 @@
 
 ### 4. Activity Photo Upload
 
-**Status:** ❌ Not Implemented
+**Status:** ✅ Implemented
 **Priority:** MEDIUM
-**Estimated Time:** 6-8 hours
+**Completed:** 2025-12-12
 
-**Requirements:**
+**Implementation Summary:**
 
-- [ ] Integrate Cloudinary or AWS S3 for image storage
-- [ ] Add image compression before upload (Sharp library)
-- [ ] Create photo upload endpoint for activities
-- [ ] Store photo URLs in database
-- [ ] Add photo retrieval endpoint
-- [ ] Implement photo deletion
-- [ ] Add file size and type validation (max 5MB, JPEG/PNG only)
+- ✅ Created unified `ImageUploadService` supporting both Cloudinary and local storage
+- ✅ Automatic mode selection (Cloudinary in production, local in development)
+- ✅ Image compression and resizing using Sharp library
+- ✅ Subfolder organization by image type (profile, activity, field, plantation)
+- ✅ Created `ActivityPhoto` entity with metadata storage
+- ✅ Implemented photo upload, retrieval, and deletion endpoints
+- ✅ File validation (type, size)
+- ✅ Proper user authorization
 
-**Implementation Details:**
+**Image Processing:**
 
-```typescript
-// src/modules/crop-management/activity-photos.service.ts
-@Injectable()
-export class ActivityPhotosService {
-	async uploadPhoto(
-		activityId: string,
-		file: Express.Multer.File
-	): Promise<string> {
-		// 1. Validate file (size, type)
-		// 2. Compress image using Sharp
-		// 3. Upload to Cloudinary/S3
-		// 4. Store URL in database
-		// 5. Return photo URL
-	}
-}
-```
+- Max resolution: 1920x1080
+- Quality: 85% JPEG compression
+- Progressive JPEG format
+- Automatic resizing if needed
+
+**Folder Structure:**
+
+- **Cloudinary:** `AgriSync/{imageType}/`
+- **Local:** `uploads/{imageType}/`
 
 **API Endpoints:**
 
-```typescript
-// POST /api/v1/fields/:fieldId/activities/:activityId/photos
-// GET /api/v1/fields/:fieldId/activities/:activityId/photos
-// DELETE /api/v1/fields/:fieldId/activities/:activityId/photos/:photoId
-```
+- `POST /api/v1/fields/:fieldId/activities/:activityId/photos` - Upload photo
+- `GET /api/v1/fields/:fieldId/activities/:activityId/photos` - List photos
+- `DELETE /api/v1/fields/:fieldId/activities/:activityId/photos/:photoId` - Delete photo
 
-**Database Schema:**
+**Files Created:**
 
-```sql
--- Create new table: activity_photos
-CREATE TABLE activity_photos (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  activity_id UUID NOT NULL REFERENCES field_activities(id) ON DELETE CASCADE,
-  photo_url VARCHAR(500) NOT NULL,
-  caption VARCHAR(255),
-  file_size INTEGER,
-  taken_at TIMESTAMPTZ DEFAULT NOW(),
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
+- `src/common/enums/image-type.enum.ts`
+- `src/common/services/image-upload.service.ts`
+- `src/common/services/common-services.module.ts`
+- `src/entities/activity-photo.entity.ts`
+- `src/modules/crop-management/activity-photos.controller.ts`
+- `src/modules/crop-management/activity-photos.service.ts`
+- `src/modules/crop-management/dto/upload-activity-photo.dto.ts`
 
-CREATE INDEX idx_activity_photos_activity_id ON activity_photos(activity_id);
-```
+**Files Modified:**
 
-**Dependencies:**
+- `src/common/services/local-storage.service.ts` (added subfolder support)
+- `src/common/third-party/cloudinary.service.ts` (added imageType parameter)
+- `src/entities/field-activity.entity.ts` (added photos relationship)
+- `src/modules/crop-management/crop-management.module.ts`
+- `src/app.module.ts` (added CommonServicesModule)
 
-```bash
-pnpm add cloudinary sharp
-# OR
-pnpm add @aws-sdk/client-s3 sharp
-```
+**Future Extensibility:**
+The system is designed to easily support other image types:
+
+- Profile photos
+- Field photos
+- Plantation photos
+- Any future image requirements
 
 ---
 
