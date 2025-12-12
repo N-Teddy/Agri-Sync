@@ -13,6 +13,7 @@ import { CropManagementModule } from './modules/crop-management/crop-management.
 import { HealthModule } from './modules/health/health.module';
 import { FinancialModule } from './modules/financial/financial.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
+import { WeatherModule } from './modules/weather/weather.module';
 import { PlantationsModule } from './modules/plantations/plantations.module';
 
 @Module({
@@ -47,6 +48,7 @@ import { PlantationsModule } from './modules/plantations/plantations.module';
     CropManagementModule,
     FinancialModule,
     DashboardModule,
+    WeatherModule,
   ],
   providers: [
     {

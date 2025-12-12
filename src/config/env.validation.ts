@@ -28,6 +28,9 @@ export interface EnvironmentVariables {
   UPLOADS_DIR?: string;
   GOOGLE_CLIENT_ID: string;
   GOOGLE_CLIENT_SECRET: string;
+  WEATHER_API_KEY: string;
+  WEATHER_API_BASE_URL?: string;
+  WEATHER_DEFAULT_FORECAST_DAYS?: number;
 }
 
 export const validateEnv = (
@@ -127,5 +130,11 @@ export const validateEnv = (
     UPLOADS_DIR: getOptionalString('UPLOADS_DIR'),
     GOOGLE_CLIENT_ID: getString('GOOGLE_CLIENT_ID'),
     GOOGLE_CLIENT_SECRET: getString('GOOGLE_CLIENT_SECRET'),
+    WEATHER_API_KEY: getString('WEATHER_API_KEY'),
+    WEATHER_API_BASE_URL: getOptionalString('WEATHER_API_BASE_URL'),
+    WEATHER_DEFAULT_FORECAST_DAYS: getNumber(
+      'WEATHER_DEFAULT_FORECAST_DAYS',
+      3,
+    ),
   };
 };

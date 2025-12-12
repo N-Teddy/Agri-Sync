@@ -9,10 +9,7 @@ import {
   ValidationArguments,
 } from 'class-validator';
 
-export type FieldBoundary = {
-  type: 'Polygon';
-  coordinates: number[][][];
-};
+import { FieldBoundary } from '../types/field-boundary.type';
 
 @ValidatorConstraint({ name: 'GeoJsonPolygon', async: false })
 class GeoJsonPolygonConstraint implements ValidatorConstraintInterface {

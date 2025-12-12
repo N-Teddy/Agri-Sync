@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { In, Repository, IsNull } from 'typeorm';
 
 import { Alert } from '../../entities/alert.entity';
 import { Field } from '../../entities/field.entity';
@@ -18,7 +18,7 @@ interface WeatherOverviewItem {
   source?: string;
 }
 
-interface DashboardSummary {
+export interface DashboardSummary {
   fields: Array<{
     id: string;
     name: string;
@@ -106,23 +106,32 @@ export class DashboardService {
 
     const latestReadings = await Promise.all(
       fields.map(async (field) => {
-        const reading = await this.weatherRepository.findOne({
-          where: { field: { id: field.id } },
+        const actualReading = await this.weatherRepository.findOne({
+          where: { field: { id: field.id }, isForecast: false },
           order: { recordedAt: 'DESC' },
         });
+
+        const fallback = actualReading
+          ? actualReading
+          : await this.weatherRepository.findOne({
+            where: { field: { id: field.id } },
+            order: { recordedAt: 'DESC' },
+          });
 
         return {
           fieldId: field.id,
           fieldName: field.name,
-          recordedAt: reading?.recordedAt,
-          temperatureC: reading ? this.parseNumericValue(reading.temperatureC) : undefined,
-          humidityPercent: reading
-            ? this.parseNumericValue(reading.humidityPercent)
+          recordedAt: fallback?.recordedAt,
+          temperatureC: fallback
+            ? this.parseNumericValue(fallback.temperatureC)
             : undefined,
-          rainfallMm: reading
-            ? this.parseNumericValue(reading.rainfallMm)
+          humidityPercent: fallback
+            ? this.parseNumericValue(fallback.humidityPercent)
             : undefined,
-          source: reading?.source,
+          rainfallMm: fallback
+            ? this.parseNumericValue(fallback.rainfallMm)
+            : undefined,
+          source: fallback?.source,
         };
       }),
     );
@@ -154,7 +163,7 @@ export class DashboardService {
     return this.alertsRepository.find({
       where: {
         field: { id: In(fieldIds) },
-        resolvedAt: null,
+        resolvedAt: IsNull(),
       },
       relations: { field: true },
       order: { triggeredAt: 'DESC' },

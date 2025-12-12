@@ -49,6 +49,11 @@ export interface AppConfiguration {
   security: {
     apiKey?: string;
   };
+  weather: {
+    apiKey: string;
+    baseUrl: string;
+    defaultForecastDays: number;
+  };
 }
 
 const configuration = (): AppConfiguration => {
@@ -106,6 +111,14 @@ const configuration = (): AppConfiguration => {
     },
     security: {
       apiKey: process.env.SECURITY_API_KEY,
+    },
+    weather: {
+      apiKey: process.env.WEATHER_API_KEY ?? '',
+      baseUrl:
+        process.env.WEATHER_API_BASE_URL ??
+        'https://api.openweathermap.org/data/2.5',
+      defaultForecastDays:
+        Number(process.env.WEATHER_DEFAULT_FORECAST_DAYS) || 3,
     },
   };
 };

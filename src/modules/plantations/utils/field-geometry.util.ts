@@ -1,4 +1,4 @@
-import { FieldBoundary } from '../dto/create-field.dto';
+import { FieldBoundary } from '../types/field-boundary.type';
 
 const EARTH_RADIUS_METERS = 6378137;
 
@@ -27,4 +27,35 @@ export const calculateFieldAreaHectares = (boundary: FieldBoundary): number => {
   const areaInHectares = areaInSquareMeters / 10000;
 
   return Number(areaInHectares.toFixed(2));
+};
+
+export const calculateFieldCentroid = (
+  boundary: FieldBoundary,
+): { lat: number; lng: number } => {
+  const [outerRing] = boundary.coordinates;
+  if (!outerRing || outerRing.length < 3) {
+    throw new Error('Field boundary must include at least three points');
+  }
+
+  // Ignore final coordinate if it repeats the first point for a closed polygon
+  const points =
+    outerRing[0][0] === outerRing[outerRing.length - 1][0] &&
+      outerRing[0][1] === outerRing[outerRing.length - 1][1]
+      ? outerRing.slice(0, -1)
+      : outerRing;
+
+  let sumLat = 0;
+  let sumLng = 0;
+
+  for (const [lng, lat] of points) {
+    sumLat += lat;
+    sumLng += lng;
+  }
+
+  const count = points.length || 1;
+
+  return {
+    lat: sumLat / count,
+    lng: sumLng / count,
+  };
 };

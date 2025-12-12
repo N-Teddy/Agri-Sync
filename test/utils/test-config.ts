@@ -51,4 +51,9 @@ export const buildTestConfiguration = (): AppConfiguration => ({
   security: {
     apiKey: 'test-api-key',
   },
+  weather: {
+    apiKey: 'test-weather-api-key',
+    baseUrl: 'https://api.test-weather.com',
+    defaultForecastDays: 3,
+  },
 });

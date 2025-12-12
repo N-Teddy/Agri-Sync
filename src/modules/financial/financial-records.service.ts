@@ -72,7 +72,7 @@ export class FinancialRecordsService {
       description: dto.description,
       cropType: dto.cropType,
       quantityKg,
-      pricePerKgXaf,
+      pricePerKgXaf: pricePerKg,
       productName: dto.buyerName,
     });
 

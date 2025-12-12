@@ -1,5 +1,5 @@
-import { FieldBoundary } from '../dto/create-field.dto';
-import { calculateFieldAreaHectares } from './field-geometry.util';
+import { FieldBoundary } from '../types/field-boundary.type';
+import { calculateFieldAreaHectares, calculateFieldCentroid } from './field-geometry.util';
 
 const buildSquarePolygon = (originLon: number, originLat: number, sizeDegrees = 0.001): FieldBoundary => ({
   type: 'Polygon',
@@ -26,5 +26,13 @@ describe('calculateFieldAreaHectares', () => {
     const small = calculateFieldAreaHectares(buildSquarePolygon(9.31, 4.15, 0.0005));
     const large = calculateFieldAreaHectares(buildSquarePolygon(9.31, 4.15, 0.002));
     expect(large).toBeGreaterThan(small);
+  });
+});
+
+describe('calculateFieldCentroid', () => {
+  it('computes centroid coordinates for a closed polygon', () => {
+    const centroid = calculateFieldCentroid(buildSquarePolygon(9, 4, 0.01));
+    expect(centroid.lat).toBeCloseTo(4.005, 3);
+    expect(centroid.lng).toBeCloseTo(9.005, 3);
   });
 });
