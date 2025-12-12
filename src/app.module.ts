@@ -9,6 +9,7 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import configuration, { AppConfiguration } from './config/configuration';
 import { validateEnv } from './config/env.validation';
 import { buildTypeOrmConfig } from './config/typeorm.config';
+import { AlertsModule } from './modules/alerts/alerts.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { CropManagementModule } from './modules/crop-management/crop-management.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
@@ -18,46 +19,47 @@ import { PlantationsModule } from './modules/plantations/plantations.module';
 import { WeatherModule } from './modules/weather/weather.module';
 
 @Module({
-	imports: [
-		ConfigModule.forRoot({
-			isGlobal: true,
-			envFilePath: ['.env'],
-			load: [configuration],
-			validate: validateEnv,
-		}),
-		TypeOrmModule.forRootAsync({
-			inject: [ConfigService],
-			useFactory: (configService: ConfigService<AppConfiguration>) =>
-				buildTypeOrmConfig(configService),
-		}),
-		BullModule.forRootAsync({
-			inject: [ConfigService],
-			useFactory: (configService: ConfigService<AppConfiguration>) => {
-				const redis =
-					configService.get<AppConfiguration['redis']>('redis');
-				return {
-					redis: {
-						host: redis?.host,
-						port: redis?.port,
-						password: redis?.password,
-					},
-				};
-			},
-		}),
-		ScheduleModule.forRoot(),
-		AuthModule,
-		HealthModule,
-		PlantationsModule,
-		CropManagementModule,
-		FinancialModule,
-		DashboardModule,
-		WeatherModule,
-	],
-	providers: [
-		{
-			provide: APP_GUARD,
-			useClass: JwtAuthGuard,
-		},
-	],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: ['.env'],
+      load: [configuration],
+      validate: validateEnv,
+    }),
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService<AppConfiguration>) =>
+        buildTypeOrmConfig(configService),
+    }),
+    BullModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService<AppConfiguration>) => {
+        const redis =
+          configService.get<AppConfiguration['redis']>('redis');
+        return {
+          redis: {
+            host: redis?.host,
+            port: redis?.port,
+            password: redis?.password,
+          },
+        };
+      },
+    }),
+    ScheduleModule.forRoot(),
+    AlertsModule,
+    AuthModule,
+    HealthModule,
+    PlantationsModule,
+    CropManagementModule,
+    FinancialModule,
+    DashboardModule,
+    WeatherModule,
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+  ],
 })
-export class AppModule {}
+export class AppModule { }
