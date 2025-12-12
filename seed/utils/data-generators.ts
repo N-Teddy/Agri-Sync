@@ -3,7 +3,9 @@ import { faker } from '@faker-js/faker';
 export const generateUserData = (index: number) => ({
     email: `farmer${index}@agrisync.test`,
     fullName: faker.person.fullName(),
-    phoneNumber: faker.phone.number('+237 6## ## ## ##'),
+    phoneNumber: faker.phone.number({
+        style: 'international',
+    }),
 });
 
 export const generatePlantationData = () => ({

@@ -1,4 +1,4 @@
-import { Column, ColumnOptions, Entity, ManyToOne, OneToMany } from 'typeorm';
+import { Column, ColumnOptions, Entity, Index, ManyToOne, OneToMany } from 'typeorm';
 
 import { CropType } from '../common/enums/crop-type.enum';
 import { Alert } from './alert.entity';
@@ -13,15 +13,15 @@ const isTestEnv = process.env.NODE_ENV === 'test';
 
 const boundaryColumnOptions: ColumnOptions = isTestEnv
 	? {
-			type: 'simple-json',
-			nullable: true,
-		}
+		type: 'simple-json',
+		nullable: true,
+	}
 	: {
-			type: 'geometry',
-			spatialFeatureType: 'Polygon',
-			srid: 4326,
-			nullable: true,
-		};
+		type: 'geometry',
+		spatialFeatureType: 'Polygon',
+		srid: 4326,
+		nullable: true,
+	};
 
 @Entity({ name: 'fields' })
 export class Field extends BaseEntity {
@@ -47,6 +47,7 @@ export class Field extends BaseEntity {
 	@ManyToOne(() => Plantation, (plantation) => plantation.fields, {
 		onDelete: 'CASCADE',
 	})
+	@Index() // Index on plantation_id
 	plantation!: Plantation;
 
 	@OneToMany(() => PlantingSeason, (season) => season.field)

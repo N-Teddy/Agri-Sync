@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { Column, Entity, Index, ManyToOne } from 'typeorm';
 
 import { BaseEntity } from './base.entity';
 import { FieldActivity } from './field-activity.entity';
@@ -8,6 +8,7 @@ export class ActivityPhoto extends BaseEntity {
     @ManyToOne(() => FieldActivity, (activity) => activity.photos, {
         onDelete: 'CASCADE',
     })
+    @Index() // Index on activity_id
     activity!: FieldActivity;
 
     @Column({ type: 'varchar', length: 500 })
@@ -29,5 +30,6 @@ export class ActivityPhoto extends BaseEntity {
     fileSize?: number;
 
     @Column({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
+    @Index() // Index on taken_at
     takenAt!: Date;
 }

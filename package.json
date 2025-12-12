@@ -18,7 +18,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json --runInBand",
-    "seed": "ts-node seed/seed.ts"
+    "seed": "ts-node seed/index.ts"
   },
   "dependencies": {
     "@nestjs/axios": "^4.0.1",
@@ -70,6 +70,7 @@
     "uuid": "^13.0.0"
   },
   "devDependencies": {
+    "@faker-js/faker": "^10.1.0",
     "@nestjs/cli": "^10.4.9",
     "@nestjs/schematics": "^10.2.3",
     "@nestjs/testing": "^10.0.0",

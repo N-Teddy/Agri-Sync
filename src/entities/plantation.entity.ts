@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
+import { Column, Entity, Index, ManyToOne, OneToMany } from 'typeorm';
 
 import { BaseEntity } from './base.entity';
 import { Field } from './field.entity';
@@ -18,6 +18,7 @@ export class Plantation extends BaseEntity {
 	@ManyToOne(() => User, (user) => user.plantations, {
 		onDelete: 'CASCADE',
 	})
+	@Index() // Index on owner_id
 	owner!: User;
 
 	@OneToMany(() => Field, (field) => field.plantation)
