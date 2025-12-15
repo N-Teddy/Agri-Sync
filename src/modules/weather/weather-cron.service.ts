@@ -14,13 +14,14 @@ export class WeatherCronService {
 		@InjectRepository(Field)
 		private readonly fieldRepository: Repository<Field>,
 		private readonly weatherService: WeatherService
-	) {}
+	) { }
 
 	/**
 	 * Fetch weather data for all active fields every 3 hours
 	 * Runs at: 00:00, 03:00, 06:00, 09:00, 12:00, 15:00, 18:00, 21:00
 	 */
-	@Cron('0 */3 * * *', {
+	//TODO: change back to every 3 hours ater `0 */3 * * *`
+	@Cron('0 */5 * * * *', {
 		name: 'fetch-weather-data',
 		timeZone: 'Africa/Douala', // Cameroon timezone
 	})
