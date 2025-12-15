@@ -9,16 +9,16 @@ import { ExportController } from './export.controller';
 import { ExportService } from './export.service';
 
 @Module({
-    imports: [
-        TypeOrmModule.forFeature([
-            FieldActivity,
-            FinancialRecord,
-            PlantingSeason,
-        ]),
-        FieldsModule,
-    ],
-    controllers: [ExportController],
-    providers: [ExportService],
-    exports: [ExportService],
+	imports: [
+		TypeOrmModule.forFeature([
+			FieldActivity,
+			FinancialRecord,
+			PlantingSeason,
+		]),
+		FieldsModule,
+	],
+	controllers: [ExportController],
+	providers: [ExportService],
+	exports: [ExportService],
 })
-export class ExportModule { }
+export class ExportModule {}

@@ -6,7 +6,7 @@ import { LocalStorageService } from './local-storage.service';
 
 @Global()
 @Module({
-    providers: [LocalStorageService, CloudinaryService, ImageUploadService],
-    exports: [LocalStorageService, CloudinaryService, ImageUploadService],
+	providers: [LocalStorageService, CloudinaryService, ImageUploadService],
+	exports: [LocalStorageService, CloudinaryService, ImageUploadService],
 })
-export class CommonServicesModule { }
+export class CommonServicesModule {}

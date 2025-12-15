@@ -9,7 +9,7 @@ export class FieldAccessService {
 	constructor(
 		@InjectRepository(Field)
 		private readonly fieldsRepository: Repository<Field>
-	) { }
+	) {}
 
 	async getOwnedField(fieldId: string, ownerId: string): Promise<Field> {
 		const field = await this.fieldsRepository.findOne({

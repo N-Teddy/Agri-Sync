@@ -17,7 +17,7 @@ export class WeatherAlertsService {
 		@InjectRepository(Alert)
 		private readonly alertsRepository: Repository<Alert>,
 		private readonly alertEmailService: AlertEmailService
-	) { }
+	) {}
 
 	async evaluate(
 		field: Field,
@@ -117,7 +117,7 @@ export class WeatherAlertsService {
 		if (
 			recentAlert &&
 			recentAlert.triggeredAt >=
-			this.subtractHours(new Date(), ALERT_SUPPRESSION_HOURS)
+				this.subtractHours(new Date(), ALERT_SUPPRESSION_HOURS)
 		) {
 			return undefined;
 		}

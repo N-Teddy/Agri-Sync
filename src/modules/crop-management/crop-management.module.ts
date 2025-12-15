@@ -36,4 +36,4 @@ import { PlantingSeasonsService } from './planting-seasons.service';
 		ActivityPhotosService,
 	],
 })
-export class CropManagementModule { }
+export class CropManagementModule {}

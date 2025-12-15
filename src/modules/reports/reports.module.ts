@@ -11,18 +11,18 @@ import { ReportsController } from './reports.controller';
 import { ReportsService } from './reports.service';
 
 @Module({
-    imports: [
-        TypeOrmModule.forFeature([
-            FieldActivity,
-            FinancialRecord,
-            PlantingSeason,
-            WeatherData,
-            Alert,
-        ]),
-        FieldsModule,
-    ],
-    controllers: [ReportsController],
-    providers: [ReportsService],
-    exports: [ReportsService],
+	imports: [
+		TypeOrmModule.forFeature([
+			FieldActivity,
+			FinancialRecord,
+			PlantingSeason,
+			WeatherData,
+			Alert,
+		]),
+		FieldsModule,
+	],
+	controllers: [ReportsController],
+	providers: [ReportsService],
+	exports: [ReportsService],
 })
-export class ReportsModule { }
+export class ReportsModule {}

@@ -183,8 +183,7 @@ export class PlantingSeasonsService {
 					? this.dateToEpoch(season.expectedHarvestDate)
 					: Number.POSITIVE_INFINITY;
 
-			const overlaps =
-				newStart <= seasonEnd && seasonStart <= newEnd;
+			const overlaps = newStart <= seasonEnd && seasonStart <= newEnd;
 			if (overlaps) {
 				throw new BadRequestException(
 					'Planting season dates overlap with an existing season'

@@ -21,4 +21,4 @@ import { MailProcessor } from './mail.processor';
 	],
 	exports: [EmailQueueService, AlertEmailService],
 })
-export class EmailModule { }
+export class EmailModule {}

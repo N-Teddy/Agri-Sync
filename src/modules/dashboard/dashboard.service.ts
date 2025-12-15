@@ -82,7 +82,7 @@ export class DashboardService {
 		@InjectRepository(WeatherData)
 		private readonly weatherRepository: Repository<WeatherData>,
 		private readonly financialRecordsService: FinancialRecordsService
-	) { }
+	) {}
 
 	async getSummary(ownerId: string): Promise<DashboardSummary> {
 		const fields = await this.fieldsRepository.find({
@@ -94,9 +94,7 @@ export class DashboardService {
 		const fieldIds = fields.map((field) => field.id);
 
 		// Get unique plantation count
-		const plantationIds = [
-			...new Set(fields.map((f) => f.plantation.id)),
-		];
+		const plantationIds = [...new Set(fields.map((f) => f.plantation.id))];
 
 		const [
 			weatherOverview,
@@ -183,9 +181,9 @@ export class DashboardService {
 				const fallback = actualReading
 					? actualReading
 					: await this.weatherRepository.findOne({
-						where: { field: { id: field.id } },
-						order: { recordedAt: 'DESC' },
-					});
+							where: { field: { id: field.id } },
+							order: { recordedAt: 'DESC' },
+						});
 
 				return {
 					fieldId: field.id,
@@ -264,9 +262,7 @@ export class DashboardService {
 		});
 	}
 
-	private async getTotalActivitiesCount(
-		fieldIds: string[]
-	): Promise<number> {
+	private async getTotalActivitiesCount(fieldIds: string[]): Promise<number> {
 		if (!fieldIds.length) {
 			return 0;
 		}

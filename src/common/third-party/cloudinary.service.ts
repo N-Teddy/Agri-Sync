@@ -18,8 +18,8 @@ export class CloudinaryService {
 			);
 		this.enabled = Boolean(
 			cloudConfig?.cloudName &&
-			cloudConfig?.apiKey &&
-			cloudConfig?.apiSecret
+				cloudConfig?.apiKey &&
+				cloudConfig?.apiSecret
 		);
 
 		if (this.enabled) {

@@ -22,50 +22,50 @@ import { ReportsModule } from './modules/reports/reports.module';
 import { WeatherModule } from './modules/weather/weather.module';
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: ['.env'],
-      load: [configuration],
-      validate: validateEnv,
-    }),
-    TypeOrmModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService<AppConfiguration>) =>
-        buildTypeOrmConfig(configService),
-    }),
-    BullModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService<AppConfiguration>) => {
-        const redis =
-          configService.get<AppConfiguration['redis']>('redis');
-        return {
-          redis: {
-            host: redis?.host,
-            port: redis?.port,
-            password: redis?.password,
-          },
-        };
-      },
-    }),
-    ScheduleModule.forRoot(),
-    CommonServicesModule,
-    AlertsModule,
-    AuthModule,
-    HealthModule,
-    PlantationsModule,
-    CropManagementModule,
-    FinancialModule,
-    DashboardModule,
-    ReportsModule,
-    ExportModule,
-    WeatherModule,
-  ],
-  providers: [
-    {
-      provide: APP_GUARD,
-      useClass: JwtAuthGuard,
-    },
-  ],
+	imports: [
+		ConfigModule.forRoot({
+			isGlobal: true,
+			envFilePath: ['.env'],
+			load: [configuration],
+			validate: validateEnv,
+		}),
+		TypeOrmModule.forRootAsync({
+			inject: [ConfigService],
+			useFactory: (configService: ConfigService<AppConfiguration>) =>
+				buildTypeOrmConfig(configService),
+		}),
+		BullModule.forRootAsync({
+			inject: [ConfigService],
+			useFactory: (configService: ConfigService<AppConfiguration>) => {
+				const redis =
+					configService.get<AppConfiguration['redis']>('redis');
+				return {
+					redis: {
+						host: redis?.host,
+						port: redis?.port,
+						password: redis?.password,
+					},
+				};
+			},
+		}),
+		ScheduleModule.forRoot(),
+		CommonServicesModule,
+		AlertsModule,
+		AuthModule,
+		HealthModule,
+		PlantationsModule,
+		CropManagementModule,
+		FinancialModule,
+		DashboardModule,
+		ReportsModule,
+		ExportModule,
+		WeatherModule,
+	],
+	providers: [
+		{
+			provide: APP_GUARD,
+			useClass: JwtAuthGuard,
+		},
+	],
 })
-export class AppModule { }
+export class AppModule {}

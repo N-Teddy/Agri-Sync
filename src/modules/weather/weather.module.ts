@@ -20,11 +20,7 @@ import { WeatherService } from './weather.service';
 		FieldsModule,
 	],
 	controllers: [WeatherController],
-	providers: [
-		WeatherService,
-		WeatherAlertsService,
-		WeatherCronService,
-	],
+	providers: [WeatherService, WeatherAlertsService, WeatherCronService],
 	exports: [WeatherService, WeatherAlertsService],
 })
-export class WeatherModule { }
+export class WeatherModule {}

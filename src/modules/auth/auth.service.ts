@@ -47,7 +47,7 @@ export class AuthService {
 		private readonly googleAuthService: GoogleAuthService,
 		private readonly cloudinaryService: CloudinaryService,
 		private readonly localStorageService: LocalStorageService
-	) { }
+	) {}
 
 	async register(payload: RegisterDto): Promise<AuthResponse> {
 		const existingUser = await this.usersService.findByEmail(

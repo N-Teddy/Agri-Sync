@@ -1,23 +1,23 @@
 export const getAlertEmailTemplate = (data: {
-    userName: string;
-    alertTitle: string;
-    alertMessage: string;
-    severity: string;
-    fieldName: string;
-    triggeredAt: string;
-    dashboardUrl: string;
+	userName: string;
+	alertTitle: string;
+	alertMessage: string;
+	severity: string;
+	fieldName: string;
+	triggeredAt: string;
+	dashboardUrl: string;
 }): string => {
-    const severityColors = {
-        low: '#10B981',
-        medium: '#F59E0B',
-        high: '#EF4444',
-    };
+	const severityColors = {
+		low: '#10B981',
+		medium: '#F59E0B',
+		high: '#EF4444',
+	};
 
-    const severityColor =
-        severityColors[data.severity as keyof typeof severityColors] ||
-        '#6B7280';
+	const severityColor =
+		severityColors[data.severity as keyof typeof severityColors] ||
+		'#6B7280';
 
-    return `
+	return `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -212,18 +212,18 @@ export const getAlertEmailTemplate = (data: {
 };
 
 export const getWeeklySummaryEmailTemplate = (data: {
-    userName: string;
-    weekStart: string;
-    weekEnd: string;
-    stats: {
-        totalActivities: number;
-        totalAlerts: number;
-        avgTemperature: number;
-        totalRainfall: number;
-    };
-    dashboardUrl: string;
+	userName: string;
+	weekStart: string;
+	weekEnd: string;
+	stats: {
+		totalActivities: number;
+		totalAlerts: number;
+		avgTemperature: number;
+		totalRainfall: number;
+	};
+	dashboardUrl: string;
 }): string => {
-    return `
+	return `
 <!DOCTYPE html>
 <html lang="en">
 <head>

@@ -130,7 +130,8 @@ export class FieldActivitiesService {
 			);
 		}
 
-		const seasonEnd = season.actualHarvestDate ?? season.expectedHarvestDate;
+		const seasonEnd =
+			season.actualHarvestDate ?? season.expectedHarvestDate;
 		if (seasonEnd) {
 			const seasonEndTime = this.dateToEpoch(seasonEnd);
 			if (activityTime > seasonEndTime) {

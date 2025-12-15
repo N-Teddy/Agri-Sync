@@ -7,9 +7,9 @@ import { AlertsController } from './alerts.controller';
 import { AlertsService } from './alerts.service';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Alert]), FieldsModule],
-    controllers: [AlertsController],
-    providers: [AlertsService],
-    exports: [AlertsService],
+	imports: [TypeOrmModule.forFeature([Alert]), FieldsModule],
+	controllers: [AlertsController],
+	providers: [AlertsService],
+	exports: [AlertsService],
 })
-export class AlertsModule { }
+export class AlertsModule {}
