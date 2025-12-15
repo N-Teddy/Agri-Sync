@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 
@@ -40,6 +40,10 @@ export class FinancialRecordsService {
 		fieldId: string,
 		dto: RecordCostDto
 	): Promise<FinancialRecord> {
+		if (dto.amountXaf <= 0) {
+			throw new BadRequestException('Cost amount must be greater than 0');
+		}
+
 		const field = await this.fieldAccessService.getOwnedField(
 			fieldId,
 			ownerId
@@ -59,6 +63,12 @@ export class FinancialRecordsService {
 		fieldId: string,
 		dto: RecordRevenueDto
 	): Promise<FinancialRecord> {
+		if (dto.quantityKg <= 0 || dto.pricePerKgXaf <= 0) {
+			throw new BadRequestException(
+				'Quantity and price must be greater than 0'
+			);
+		}
+
 		const field = await this.fieldAccessService.getOwnedField(
 			fieldId,
 			ownerId

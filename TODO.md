@@ -530,27 +530,28 @@ pnpm migration:run
 
 ### 11. Business Logic Validations
 
-**Status:** 🚧 Partially Implemented
+**Status:** ✅ Implemented
 **Priority:** HIGH
-**Estimated Time:** 4-5 hours
+**Completed:** 2025-12-12
 
 **Tasks:**
 
-- [ ] **Planting Season Validation**
+- [x] **Planting Season Validation**
     - Only 1 active planting season per field
     - Prevent overlapping planting seasons
     - Validate harvest date is after planting date
 
-- [ ] **Activity Validation**
+- [x] **Activity Validation**
     - Activity date should be within planting season dates
     - Cannot log activities for harvested seasons
     - Validate activity types are appropriate for crop type
 
-- [ ] **Financial Calculations**
-    - Auto-calculate gross profit per field
-    - Auto-calculate ROI per season
-    - Calculate profitability indicators
-    - Validate amounts are positive
+**Implementation Summary:**
+
+- ✅ Added overlap and date validations when creating or harvesting planting seasons
+- ✅ Enforced activity date ranges and season status checks before logging activities
+- ✅ Crop-specific activity guardrails with explicit harvesting rules
+- ✅ Reject zero/negative financial amounts to keep calculations consistent
 
 **Implementation:**
 

@@ -35,11 +35,25 @@ export class PlantingSeasonsService {
 			ownerId
 		);
 		await this.ensureNoActiveSeason(field.id);
-
 		const plantingDate = normalizeDateInput(dto.plantingDate);
 		const expectedHarvestDate = dto.expectedHarvestDate
 			? normalizeDateInput(dto.expectedHarvestDate)
 			: undefined;
+
+		if (
+			expectedHarvestDate &&
+			this.isDateBeforeOrEqual(expectedHarvestDate, plantingDate)
+		) {
+			throw new BadRequestException(
+				'Expected harvest date must be after planting date'
+			);
+		}
+
+		await this.ensureNoOverlappingSeason(
+			field.id,
+			plantingDate,
+			expectedHarvestDate
+		);
 
 		const season = this.plantingSeasonsRepository.create({
 			field,
@@ -107,6 +121,12 @@ export class PlantingSeasonsService {
 		}
 
 		const actualHarvestDate = normalizeDateInput(dto.actualHarvestDate);
+		if (this.isDateBeforeOrEqual(actualHarvestDate, season.plantingDate)) {
+			throw new BadRequestException(
+				'Harvest date must be after planting date'
+			);
+		}
+
 		season.actualHarvestDate = actualHarvestDate;
 		season.yieldKg = dto.yieldKg.toString();
 		season.status = PlantingSeasonStatus.HARVESTED;
@@ -141,6 +161,38 @@ export class PlantingSeasonsService {
 		}
 	}
 
+	private async ensureNoOverlappingSeason(
+		fieldId: string,
+		plantingDate: string,
+		expectedHarvestDate?: string
+	) {
+		const existingSeasons = await this.plantingSeasonsRepository.find({
+			where: { field: { id: fieldId } },
+		});
+
+		const newStart = this.dateToEpoch(plantingDate);
+		const newEnd = expectedHarvestDate
+			? this.dateToEpoch(expectedHarvestDate)
+			: Number.POSITIVE_INFINITY;
+
+		for (const season of existingSeasons) {
+			const seasonStart = this.dateToEpoch(season.plantingDate);
+			const seasonEnd = season.actualHarvestDate
+				? this.dateToEpoch(season.actualHarvestDate)
+				: season.expectedHarvestDate
+					? this.dateToEpoch(season.expectedHarvestDate)
+					: Number.POSITIVE_INFINITY;
+
+			const overlaps =
+				newStart <= seasonEnd && seasonStart <= newEnd;
+			if (overlaps) {
+				throw new BadRequestException(
+					'Planting season dates overlap with an existing season'
+				);
+			}
+		}
+	}
+
 	private async findSeasonForField(fieldId: string, seasonId: string) {
 		const season = await this.plantingSeasonsRepository.findOne({
 			where: { id: seasonId, field: { id: fieldId } },
@@ -160,5 +212,13 @@ export class PlantingSeasonsService {
 			status: season.status,
 		});
 		return season;
+	}
+
+	private dateToEpoch(date: string): number {
+		return new Date(date).getTime();
+	}
+
+	private isDateBeforeOrEqual(date: string, compareTo: string): boolean {
+		return this.dateToEpoch(date) <= this.dateToEpoch(compareTo);
 	}
 }

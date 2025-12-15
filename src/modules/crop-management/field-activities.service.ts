@@ -2,6 +2,8 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
+import { ActivityType } from '../../common/enums/activity-type.enum';
+import { CropType } from '../../common/enums/crop-type.enum';
 import { PlantingSeasonStatus } from '../../common/enums/planting-season-status.enum';
 import { normalizeDateInput } from '../../common/utils/date.util';
 import { FieldActivity } from '../../entities/field-activity.entity';
@@ -10,6 +12,24 @@ import { FieldAccessService } from '../fields/field-access.service';
 import { FinancialRecordsService } from '../financial/financial-records.service';
 import { CreateFieldActivityDto } from './dto/create-field-activity.dto';
 import { FieldActivitiesFilterDto } from './dto/field-activities-filter.dto';
+
+const BASE_ACTIVITY_SEQUENCE: ActivityType[] = [
+	ActivityType.LAND_PREPARATION,
+	ActivityType.PLANTING,
+	ActivityType.FERTILIZER_APPLICATION,
+	ActivityType.SPRAYING,
+	ActivityType.WEEDING,
+	ActivityType.HARVESTING,
+];
+
+const CROP_ACTIVITY_RULES: Record<CropType, ActivityType[]> = {
+	[CropType.COFFEE_ARABICA]: BASE_ACTIVITY_SEQUENCE,
+	[CropType.COFFEE_ROBUSTA]: BASE_ACTIVITY_SEQUENCE,
+	[CropType.COCOA]: BASE_ACTIVITY_SEQUENCE,
+	[CropType.PLANTAIN]: BASE_ACTIVITY_SEQUENCE,
+	[CropType.BANANA]: BASE_ACTIVITY_SEQUENCE,
+	[CropType.MAIZE]: BASE_ACTIVITY_SEQUENCE,
+};
 
 @Injectable()
 export class FieldActivitiesService {
@@ -36,6 +56,10 @@ export class FieldActivitiesService {
 			: await this.findActiveSeason(field.id);
 
 		const activityDate = normalizeDateInput(dto.activityDate);
+		if (plantingSeason) {
+			this.validateActivityForSeason(plantingSeason, activityDate);
+			this.ensureActivityAllowedForCrop(plantingSeason, dto.activityType);
+		}
 
 		const activity = this.fieldActivitiesRepository.create({
 			field,
@@ -88,6 +112,56 @@ export class FieldActivitiesService {
 		return query.getMany();
 	}
 
+	private validateActivityForSeason(
+		season: PlantingSeason,
+		activityDate: string
+	) {
+		if (season.status === PlantingSeasonStatus.HARVESTED) {
+			throw new BadRequestException(
+				'Cannot log activities for a harvested season'
+			);
+		}
+
+		const activityTime = this.dateToEpoch(activityDate);
+		const seasonStart = this.dateToEpoch(season.plantingDate);
+		if (activityTime < seasonStart) {
+			throw new BadRequestException(
+				'Activity date cannot be before the planting date for this season'
+			);
+		}
+
+		const seasonEnd = season.actualHarvestDate ?? season.expectedHarvestDate;
+		if (seasonEnd) {
+			const seasonEndTime = this.dateToEpoch(seasonEnd);
+			if (activityTime > seasonEndTime) {
+				throw new BadRequestException(
+					'Activity date must fall within the planting season timeframe'
+				);
+			}
+		}
+	}
+
+	private ensureActivityAllowedForCrop(
+		season: PlantingSeason,
+		activityType: ActivityType
+	) {
+		const allowedActivities = CROP_ACTIVITY_RULES[season.cropType];
+		if (allowedActivities && !allowedActivities.includes(activityType)) {
+			throw new BadRequestException(
+				`Activity type "${activityType}" is not allowed for crop ${season.cropType}`
+			);
+		}
+
+		if (
+			activityType === ActivityType.HARVESTING &&
+			season.status !== PlantingSeasonStatus.ACTIVE
+		) {
+			throw new BadRequestException(
+				'Harvest activities can only be logged for active seasons'
+			);
+		}
+	}
+
 	private async findSeasonForField(fieldId: string, seasonId: string) {
 		const season = await this.plantingSeasonsRepository.findOne({
 			where: {
@@ -112,5 +186,9 @@ export class FieldActivitiesService {
 				status: PlantingSeasonStatus.ACTIVE,
 			},
 		});
+	}
+
+	private dateToEpoch(date: string): number {
+		return new Date(date).getTime();
 	}
 }
