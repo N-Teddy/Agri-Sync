@@ -7,6 +7,7 @@ import helmet from 'helmet';
 
 import type { AppConfiguration } from '../../config/configuration';
 import { AllExceptionsFilter } from '../filters/http-exception.filter';
+import { LoggingInterceptor } from '../interceptors/logging.interceptor';
 import { ResponseInterceptor } from '../interceptors/response.interceptor';
 
 export const configureApp = (
@@ -34,7 +35,10 @@ export const configureApp = (
 	);
 
 	app.useGlobalFilters(new AllExceptionsFilter());
-	app.useGlobalInterceptors(new ResponseInterceptor());
+	app.useGlobalInterceptors(
+		new LoggingInterceptor(),
+		new ResponseInterceptor()
+	);
 	app.use(helmet());
 
 	const documentConfig = new DocumentBuilder()
