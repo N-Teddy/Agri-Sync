@@ -6,6 +6,7 @@ export interface Plantation {
     id: string;
     name: string;
     location: string;
+    region: string;
 }
 
 export class PlantationsSeeder {

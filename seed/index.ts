@@ -94,6 +94,7 @@ async function main() {
                             field.id,
                             season.id,
                             season.plantingDate,
+                            season.expectedHarvestDate,
                             SEED_CONFIG.activitiesPerSeason
                         );
 

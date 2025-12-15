@@ -1,113 +1,234 @@
-import { faker } from '@faker-js/faker';
+import { randomUUID } from 'crypto';
+
+import { ActivityType } from '../../src/common/enums/activity-type.enum';
+import { CropType } from '../../src/common/enums/crop-type.enum';
+import { FinancialRecordType } from '../../src/common/enums/financial-record-type.enum';
+
+const sampleCities = [
+    'Buea',
+    'Limbe',
+    'Douala',
+    'Yaounde',
+    'Bamenda',
+    'Kumba',
+    'Nkongsamba',
+    'Edea',
+    'Kribi',
+    'Garoua',
+];
+
+const sampleRegions = [
+    'South-West',
+    'Littoral',
+    'Centre',
+    'North-West',
+    'West',
+    'South',
+];
+
+const sampleStreets = [
+    'Main Road',
+    'Palm Avenue',
+    'Cocoa Lane',
+    'Coffee Street',
+    'Plantain Drive',
+    'Harvest Way',
+    'River Road',
+    'Hill View',
+    'Sunrise Blvd',
+];
+
+const sampleWords = [
+    'quality',
+    'premium',
+    'organic',
+    'fresh',
+    'sustainable',
+    'green',
+    'harvest',
+    'yield',
+    'soil',
+    'growth',
+    'care',
+    'nourish',
+    'protect',
+];
+
+const sampleProducts = [
+    'Organic Fertilizer',
+    'Compost Mix',
+    'Pest Control Spray',
+    'Mulch Cover',
+    'Irrigation Kit',
+    'Seed Pack',
+    'Soil Booster',
+    'Foliar Feed',
+];
+
+const randomItem = <T>(items: T[]): T =>
+    items[Math.floor(Math.random() * items.length)];
+
+const randomInt = (min: number, max: number): number =>
+    Math.floor(Math.random() * (max - min + 1)) + min;
+
+const randomFloat = (
+    min: number,
+    max: number,
+    fractionDigits: number
+): number => {
+    const factor = 10 ** fractionDigits;
+    return (
+        Math.floor((Math.random() * (max - min) + min) * factor) / factor
+    );
+};
+
+const randomDateBetween = (from: Date, to: Date): Date => {
+    const fromMs = from.getTime();
+    const toMs = to.getTime();
+    const randomMs = randomInt(fromMs, toMs);
+    return new Date(randomMs);
+};
+
+const randomSentence = (): string => {
+    const wordCount = randomInt(6, 12);
+    const words = Array.from({ length: wordCount }, () =>
+        randomItem(sampleWords)
+    );
+    return (
+        words[0].charAt(0).toUpperCase() +
+        words.join(' ').slice(1) +
+        '.'
+    );
+};
 
 export const generateUserData = (index: number) => ({
     email: `farmer${index}@agrisync.test`,
-    fullName: faker.person.fullName(),
-    phoneNumber: faker.phone.number({
-        style: 'international',
-    }),
+    fullName: `Farmer ${index} ${randomItem(['Ngala', 'Tata', 'Mbeng', 'Akoh', 'Ndi'])}`,
+    phoneNumber: `+2376${randomInt(10000000, 99999999)}`,
 });
 
 export const generatePlantationData = () => ({
-    name: `${faker.location.city()} ${faker.helpers.arrayElement(['Farm', 'Estate', 'Plantation', 'Ranch'])}`,
-    location: faker.location.city() + ', Cameroon',
+    name: `${randomItem(sampleCities)} ${randomItem(['Farm', 'Estate', 'Plantation', 'Ranch'])}`,
+    location: `${randomItem(sampleCities)}, Cameroon`,
+    region: randomItem(sampleRegions),
 });
 
 export const generateFieldData = () => {
-    const area = faker.number.float({ min: 0.5, max: 10, fractionDigits: 2 });
+    const centerLat = randomFloat(2, 8, 6);
+    const centerLng = randomFloat(8, 15, 6);
+    const delta = 0.001; // ~100m box
+
+    const polygon = [
+        [centerLng - delta, centerLat - delta],
+        [centerLng + delta, centerLat - delta],
+        [centerLng + delta, centerLat + delta],
+        [centerLng - delta, centerLat + delta],
+        [centerLng - delta, centerLat - delta], // close polygon
+    ];
+
     return {
-        name: `Field ${faker.location.street()}`,
-        areaHectares: area.toString(),
-        soilType: faker.helpers.arrayElement([
+        name: `Field ${randomItem(sampleStreets)} ${randomInt(1, 50)}`,
+        soilType: randomItem([
             'Loamy',
             'Clay',
             'Sandy',
             'Silty',
             'Peaty',
         ]),
-        currentCrop: faker.helpers.arrayElement([
-            'corn',
-            'cassava',
-            'plantain',
-            'cocoa',
-            'coffee',
-        ]),
+        boundary: {
+            type: 'Polygon',
+            coordinates: [polygon],
+        },
     };
 };
 
 export const generateSeasonData = () => {
-    const plantingDate = faker.date.past({ years: 1 });
+    const plantingDate = new Date();
+    plantingDate.setMonth(plantingDate.getMonth() - randomInt(2, 10));
     const expectedHarvest = new Date(plantingDate);
     expectedHarvest.setMonth(expectedHarvest.getMonth() + 4);
 
     return {
-        cropType: faker.helpers.arrayElement([
-            'corn',
-            'cassava',
-            'plantain',
-            'cocoa',
-            'coffee',
-            'beans',
-            'yam',
-        ]),
+        cropType: randomItem(Object.values(CropType)),
         plantingDate: plantingDate.toISOString().split('T')[0],
         expectedHarvestDate: expectedHarvest.toISOString().split('T')[0],
     };
 };
 
-export const generateActivityData = (seasonStart: Date) => {
-    const activityDate = faker.date.between({
-        from: seasonStart,
-        to: new Date(),
-    });
+export const generateActivityData = (
+    seasonStart: Date,
+    seasonEnd: Date
+) => {
+    const activityDate = randomDateBetween(seasonStart, seasonEnd);
 
-    const activityType = faker.helpers.arrayElement([
-        'planting',
-        'watering',
-        'fertilizing',
-        'weeding',
-        'pest_control',
-        'harvesting',
+    const activityType = randomItem([
+        ActivityType.LAND_PREPARATION,
+        ActivityType.PLANTING,
+        ActivityType.FERTILIZER_APPLICATION,
+        ActivityType.SPRAYING,
+        ActivityType.WEEDING,
+        ActivityType.HARVESTING,
     ]);
 
-    const inputCost =
-        activityType === 'fertilizing' || activityType === 'pest_control'
-            ? faker.number.int({ min: 5000, max: 50000 })
-            : null;
+    const hasInputCost =
+        activityType === ActivityType.FERTILIZER_APPLICATION ||
+        activityType === ActivityType.SPRAYING;
+
+    const inputCost = hasInputCost
+        ? randomInt(5000, 50000)
+        : undefined;
 
     return {
         activityType,
         activityDate: activityDate.toISOString().split('T')[0],
-        notes: faker.lorem.sentence(),
-        inputProduct:
-            inputCost ? faker.commerce.productName() : undefined,
-        inputCostXaf: inputCost?.toString(),
+        notes: randomSentence(),
+        inputProduct: hasInputCost ? randomItem(sampleProducts) : undefined,
+        inputCostXaf: inputCost,
     };
 };
 
 export const generateFinancialData = () => {
-    const recordType = faker.helpers.arrayElement(['cost', 'revenue']);
-    const amount = faker.number.int({
-        min: recordType === 'cost' ? 1000 : 10000,
-        max: recordType === 'cost' ? 100000 : 500000,
-    });
+    const recordType = randomItem([
+        FinancialRecordType.COST,
+        FinancialRecordType.REVENUE,
+    ]);
+
+    const recordDate = new Date();
+    recordDate.setDate(recordDate.getDate() - randomInt(10, 300));
+
+    if (recordType === FinancialRecordType.COST) {
+        return {
+            recordType,
+            amountXaf: randomInt(1000, 100000),
+            recordDate: recordDate.toISOString().split('T')[0],
+            description: randomSentence(),
+            productName: randomItem(sampleProducts),
+        };
+    }
+
+    const quantityKg = randomFloat(50, 2000, 2);
+    const pricePerKgXaf = randomFloat(500, 3500, 2);
 
     return {
         recordType,
-        amountXaf: amount.toString(),
-        recordDate: faker.date.past({ years: 1 }).toISOString().split('T')[0],
-        description: faker.lorem.sentence(),
-        productName: recordType === 'revenue' ? faker.commerce.product() : undefined,
+        recordDate: recordDate.toISOString().split('T')[0],
+        cropType: randomItem(Object.values(CropType)),
+        quantityKg,
+        pricePerKgXaf,
+        description: `Sale ref ${randomUUID().slice(0, 8)}`,
+        buyerName: `Buyer ${randomInt(1, 50)}`,
     };
 };
 
 export const generateWeatherData = () => {
-    const temp = faker.number.float({ min: 18, max: 35, fractionDigits: 1 });
-    const humidity = faker.number.float({ min: 40, max: 95, fractionDigits: 1 });
-    const rainfall = faker.number.float({ min: 0, max: 100, fractionDigits: 1 });
+    const temp = randomFloat(18, 35, 1);
+    const humidity = randomFloat(40, 95, 1);
+    const rainfall = randomFloat(0, 100, 1);
+    const recordedAt = new Date();
+    recordedAt.setDate(recordedAt.getDate() - randomInt(0, 30));
 
     return {
-        recordedAt: faker.date.recent({ days: 30 }).toISOString(),
+        recordedAt: recordedAt.toISOString(),
         temperatureC: temp.toString(),
         humidityPercent: humidity.toString(),
         rainfallMm: rainfall.toString(),

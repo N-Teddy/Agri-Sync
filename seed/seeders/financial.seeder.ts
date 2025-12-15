@@ -18,10 +18,15 @@ export class FinancialSeeder {
         const records: FinancialRecord[] = [];
 
         for (let i = 0; i < count; i++) {
-            const data = generateFinancialData();
+            const { recordType, ...payload } = generateFinancialData();
+            const endpoint =
+                recordType === 'cost'
+                    ? `/fields/${fieldId}/financial-records/costs`
+                    : `/fields/${fieldId}/financial-records/revenue`;
+
             const response = await this.apiClient.post<BaseApiResponse<FinancialRecord>>(
-                `/fields/${fieldId}/financial-records`,
-                data
+                endpoint,
+                payload
             );
             if (response.data) {
                 records.push(response.data);

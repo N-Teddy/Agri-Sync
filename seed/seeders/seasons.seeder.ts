@@ -20,7 +20,7 @@ export class SeasonsSeeder {
         for (let i = 0; i < count; i++) {
             const data = generateSeasonData();
             const response = await this.apiClient.post<BaseApiResponse<PlantingSeason>>(
-                `/fields/${fieldId}/seasons`,
+                `/fields/${fieldId}/planting-seasons`,
                 data
             );
             if (response.data) {

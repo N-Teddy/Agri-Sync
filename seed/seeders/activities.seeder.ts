@@ -16,16 +16,24 @@ export class ActivitiesSeeder {
         fieldId: string,
         seasonId: string,
         seasonStartDate: string,
+        seasonEndDate: string | undefined,
         count: number
     ): Promise<FieldActivity[]> {
         console.log(`         🚜 Creating ${count} activities...`);
 
         const activities: FieldActivity[] = [];
         const seasonStart = new Date(seasonStartDate);
+        const seasonEnd = seasonEndDate
+            ? new Date(seasonEndDate)
+            : (() => {
+                const fallbackEnd = new Date(seasonStart);
+                fallbackEnd.setMonth(fallbackEnd.getMonth() + 4);
+                return fallbackEnd;
+            })();
 
         for (let i = 0; i < count; i++) {
             const data = {
-                ...generateActivityData(seasonStart),
+                ...generateActivityData(seasonStart, seasonEnd),
                 plantingSeasonId: seasonId,
             };
 
