@@ -1080,10 +1080,11 @@ Response: 200 OK
   "status": "success",
   "message": "Request processed successfully",
   "data": {
-    "temperature": 28.5,
-    "humidity": 65,
-    "condition": "Cloudy",
-    "windSpeed": 12.5
+    "recordedAt": "2025-12-16T17:00:36.000Z",
+    "temperatureC": 24.35,
+    "humidityPercent": 80,
+    "source": "openweather",
+    "isForecast": false
   }
 }
 ```
@@ -1100,10 +1101,28 @@ Response: 200 OK
   "message": "Request processed successfully",
   "data": [
     {
-      "date": "2025-12-17",
-      "temperatureMax": 30,
-      "temperatureMin": 22,
-      "condition": "Rain"
+      "recordedAt": "2025-12-16T21:00:00.000Z",
+      "temperatureC": 23.4,
+      "humidityPercent": 83.5,
+      "rainfallMm": 0.49,
+      "source": "openweather",
+      "isForecast": true
+    },
+    {
+      "recordedAt": "2025-12-17T21:00:00.000Z",
+      "temperatureC": 24.09,
+      "humidityPercent": 78.25,
+      "rainfallMm": 2.56,
+      "source": "openweather",
+      "isForecast": true
+    },
+    {
+      "recordedAt": "2025-12-18T21:00:00.000Z",
+      "temperatureC": 24.35,
+      "humidityPercent": 77.38,
+      "rainfallMm": 1.67,
+      "source": "openweather",
+      "isForecast": true
     }
   ]
 }
