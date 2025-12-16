@@ -7,7 +7,7 @@ export const SEED_CONFIG = {
     usersCount: 10,
     plantationsPerUser: 2,
     fieldsPerPlantation: 3,
-    seasonsPerField: 2,
+    seasonsPerField: 1,
     activitiesPerSeason: 10,
     photosPerActivity: 2,
     financialRecordsPerField: 15,
