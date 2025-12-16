@@ -1,253 +1,165 @@
-# Agri Sync Pro – Frontend Delivery Blueprint
+# Agri Sync Pro – Frontend Delivery Blueprint (Updated)
 
-> Single source of truth for anyone building the customer-facing experience (human or AI). Covers API contracts, data relationships, UX constraints, and open questions that still need product input.
+Single source of truth for anyone building the customer-facing experience. Reflects the implemented backend (weather cron + alerts, dashboard aggregations, reports, CSV export, activity photos).
 
 ---
 
-## 1. Platform Snapshot
+## 1) Platform Snapshot
 
 - **API host template:** `https://<api-domain>/api/v1`
-- **Auth:** Bearer JWT (`Authorization: Bearer <accessToken>`) issued by the Auth module. Refresh tokens are long-lived JWTs stored client-side (http-only cookie or secure storage).
-- **Response envelope:** Every success payload is wrapped as  
-  ```json
-  { "status": "success", "message": "Request processed successfully", "data": { ... } }
-  ```  
-  Errors bubble up as  
-  ```json
-  { "status": "error", "message": "Human-readable issue", "errors": {...}, "timestamp": "...", "path": "/api/v1/..." }
-  ```
-- **Dates:** Must be sent as ISO date strings (`YYYY-MM-DD`). Backend normalizes via `normalizeDateInput`.
-- **Numbers:** Monetary and yield fields accept numbers but are stored as strings (fixed precision). Always send decimals as numbers so validation can run.
-- **Files:** Avatar uploads must be sent as `multipart/form-data` with field `avatar` (max 5 MB).
-- **Swagger:** Interactive docs live at `/api/docs` (same host). Useful for trying payloads once OAuth header is set.
+- **Auth:** JWT Bearer on all non-auth routes; refresh tokens are long-lived JWTs stored client-side.
+- **Response envelope:** Success → `{ status: "success", message, data }`; Errors → `{ status: "error", message, errors?, timestamp, path }`.
+- **Dates & numbers:** Send dates as `YYYY-MM-DD`; monetary/yield numbers as numeric values (backend stores fixed 2-decimal strings).
+- **Files:** Avatars via `avatar` field (≤5 MB, image/*); activity photos via `photo` field (image/*, resized to 1920×1080 @85% quality).
+- **Versioning & docs:** URI versioning (`/v1`); Swagger at `/api/docs` for live payloads.
 
 ---
 
-## 2. Domain Model Map
+## 2) Domain Model Map (frontend-facing)
 
-### 2.1 User
-| Field | Type | Notes |
+| Entity | Key Fields | Notes |
 | --- | --- | --- |
-| `id` | UUID | Primary key, returned after auth calls |
-| `email`, `fullName`, `phoneNumber?` | string | Phone optional |
-| `isEmailVerified` | boolean | Blocks some flows until true |
-| `avatarUrl?` | string | Public CDN/local path |
-| `googleId?` | string | Present when user linked Google |
-| `refreshTokenExpiresAt?` | ISO string | For showing session expiry |
+| User | `id, email, fullName, phoneNumber?, avatarUrl?, isEmailVerified, refreshTokenExpiresAt?` | Google SSO links `googleId`; profile edit limited to name/phone; avatar upload returns URL |
+| Plantation | `id, name, location, region, createdAt` | Owner is always the logged-in user; no sharing/roles (MVP) |
+| Field | `id, plantationId, name, soilType?, boundary (GeoJSON Polygon), areaHectares, currentCrop?` | Area calculated server-side; max 5 fields/plantation |
+| PlantingSeason | `id, fieldId, cropType, plantingDate, expectedHarvestDate?, actualHarvestDate?, yieldKg?, status, growthStage` | `status`: planned/active/harvested/archived; growthStage derived server-side |
+| FieldActivity | `id, fieldId, plantingSeasonId?, activityType, activityDate, notes?, inputProduct?, inputCostXaf?` | Auto-linked to active season when omitted |
+| ActivityPhoto | `id, activityId, photoUrl, caption?, width, height, fileSize, takenAt` | Stored locally or Cloudinary depending on env |
+| FinancialRecord | `id, fieldId, recordType (cost|revenue), recordDate, amountXaf, productName?, description?, cropType?, quantityKg?, pricePerKgXaf?` | Revenue totals = quantity × price |
+| Alert | `id, fieldId, alertType, severity, title, message, triggeredAt, acknowledgedAt?, resolvedAt?, metadata` | Weather-driven alerts with suppression window |
+| WeatherData | `id, fieldId, recordedAt, temperatureC?, humidityPercent?, rainfallMm?, isForecast, source` | Populated by live/forecast calls and cron job |
 
-### 2.2 Plantation
-| Field | Type | Notes |
-| --- | --- | --- |
-| `id`, `name`, `location`, `region` | string | Simple metadata |
-| `owner` | User ref | Always the logged-in owner |
-| `fields` | Field[] | Only returned when explicitly expanded |
-
-### 2.3 Field
-| Field | Type | Notes |
-| --- | --- | --- |
-| `id`, `name`, `soilType?` | string | Soil optional |
-| `boundary` | GeoJSON Polygon | Coordinates array `[[lng, lat], ...]`, first point equals last |
-| `areaHectares` | string | Derived from polygon (2 decimal places) |
-| `currentCrop?` | enum `CropType` | Auto-updated when seasons start/end |
-| `plantation` | Plantation ref | Always belongs to a plantation |
-
-**CropType options:** `coffee_arabica`, `coffee_robusta`, `cocoa`, `plantain`, `banana`, `maize`.
-
-### 2.4 PlantingSeason
-| Field | Type | Notes |
-| --- | --- | --- |
-| `id` | UUID | |
-| `field` | Field ref | Ownership enforced server-side |
-| `cropType` | CropType enum | Must match dropdown |
-| `plantingDate`, `expectedHarvestDate?`, `actualHarvestDate?` | `YYYY-MM-DD` | Dates normalized |
-| `yieldKg?` | string | Set during harvest |
-| `status` | enum | `planned`, `active`, `harvested`, `archived` |
-| `growthStage?` | string | Derived by backend (`planned`, `germination`, `vegetative`, `flowering`, `fruiting`, `maturation`, `post_harvest`) |
-
-### 2.5 FieldActivity
-| Field | Type | Notes |
-| --- | --- | --- |
-| `id` | UUID | |
-| `field` | Field ref | |
-| `plantingSeason?` | Season ref | Optional, auto-attached if an active season exists |
-| `activityType` | enum | `land_preparation`, `planting`, `fertilizer_application`, `spraying`, `weeding`, `harvesting` |
-| `activityDate` | `YYYY-MM-DD` | Required |
-| `notes?`, `inputProduct?` | string | Max 500 and 255 chars |
-| `inputCostXaf?` | string | Number sent in request, stored at 2 decimal precision |
+Enums to cache client-side: `CropType`, `ActivityType`, `PlantingSeasonStatus`, `AlertType`, `AlertSeverity`, `FinancialRecordType`.
 
 ---
 
-## 3. Feature Workflows & API Contracts
+## 3) Feature Workflows & API Contracts (happy paths)
 
-### 3.1 Authentication & Profile
+### Auth & Profile
+| Intent | Method & Path | Payload | Response |
+| --- | --- | --- | --- |
+| Register | `POST /auth/register` | `{ email, password, fullName, phoneNumber?, rememberMe? }` | `{ accessToken, refreshToken, user }` |
+| Login | `POST /auth/login` | `{ email, password, rememberMe? }` | tokens + `user` |
+| Google SSO | `POST /auth/google` | `{ idToken, rememberMe? }` | tokens + `user` |
+| Verify email | `POST /auth/verify-email` or `GET /auth/verify-email?token=` | `{ token }` | `{ message }` |
+| Refresh | `POST /auth/refresh` | `{ refreshToken }` | new tokens + `user` |
+| Logout | `POST /auth/logout` | — | `{ message }` |
+| Me | `GET /auth/me` | — | profile |
+| Update profile | `PATCH /auth/profile` | `{ fullName?, phoneNumber? }` | updated profile |
+| Upload avatar | `POST /auth/profile/avatar` | multipart with `avatar` | `{ avatarUrl }` |
 
-| Intent | Method & Path | Auth | Body Summary | Response |
-| --- | --- | --- | --- | --- |
-| Register | `POST /auth/register` | Public | `{ email, password, fullName, phoneNumber?, rememberMe? }` | `{ accessToken, refreshToken, user }` |
-| Login | `POST /auth/login` | Public | Same as register minus name | Tokens + user |
-| Google SSO | `POST /auth/google` | Public | `{ idToken, rememberMe? }` | Tokens + user |
-| Verify email (API) | `POST /auth/verify-email` or `GET /auth/verify-email?token=` | Public | `{ token }` | `{ message }` |
-| Refresh tokens | `POST /auth/refresh` | Public | `{ refreshToken }` | New token pair |
-| Logout | `POST /auth/logout` | Bearer | none | `{ message }` |
-| Me | `GET /auth/me` | Bearer | — | User profile |
-| Update profile | `PATCH /auth/profile` | Bearer | `{ fullName?, phoneNumber? }` | Updated user |
-| Upload avatar | `POST /auth/profile/avatar` | Bearer | `multipart/form-data` with `avatar` | `{ avatarUrl }` |
-
-**UI notes**
-- Registration/login forms need a “Remember me” control (longer refresh TTL).
-- Email verification link hits `/auth/verify-email?token=...`; deep-link from email should land on frontend route that forwards token to API and shows success/failure state.
-- Access tokens expire quickly (`jwt.expiresIn`, default 15 min). Frontend must refresh proactively using stored refresh token.
-- Avatar upload should limit client-side file size and type before hitting API to avoid 400 errors.
-
-### 3.2 Plantation Management
-
+### Plantation & Field Management
 | Intent | Method & Path | Body | Notes |
 | --- | --- | --- | --- |
 | Create plantation | `POST /plantations` | `{ name, location, region }` | Auth required |
-| List plantations | `GET /plantations` | — | Sorted by `createdAt DESC` |
-| Plantation detail | `GET /plantations/:plantationId` | — | Ensures ownership |
+| List plantations | `GET /plantations` | — | Ordered newest first |
+| Plantation detail | `GET /plantations/:plantationId` | — | Ownership enforced |
+| Create field | `POST /plantations/:plantationId/fields` | `{ name, soilType?, boundary }` | GeoJSON polygon; max 5 fields/plantation |
+| List fields | `GET /plantations/:plantationId/fields` | — | Returns computed `areaHectares` |
+| Field detail | `GET /plantations/:plantationId/fields/:fieldId` | — | Includes `currentCrop` |
 
-**UX guidance**
-- Keep a simple wizard: metadata only (no geospatial inputs).  
-- Provide create CTA from dashboard and show empty state with illustration when no plantations exist.
+Boundary UX: enforce closed polygon, `[lng, lat]` order, ≥4 points, show computed hectares after save.
 
-### 3.3 Field Management (per plantation)
-
+### Planting Seasons
 | Intent | Method & Path | Body | Notes |
 | --- | --- | --- | --- |
-| Create field | `POST /plantations/:plantationId/fields` | `{ name, soilType?, boundary }` | Valid GeoJSON polygon; max 5 fields per plantation |
-| List fields | `GET /plantations/:plantationId/fields` | — | Sorted newest first |
-| Field detail | `GET /plantations/:plantationId/fields/:fieldId` | — | Returns computed `areaHectares`, `currentCrop` |
+| Create season | `POST /fields/:fieldId/planting-seasons` | `{ cropType, plantingDate, expectedHarvestDate? }` | Rejects overlapping or concurrent planned/active seasons |
+| List seasons | `GET /fields/:fieldId/planting-seasons` | — | Sorted newest first; `growthStage` derived |
+| Season detail | `GET /fields/:fieldId/planting-seasons/:seasonId` | — | Derived `growthStage` |
+| Mark harvest | `PATCH /fields/:fieldId/planting-seasons/:seasonId/harvest` | `{ actualHarvestDate, yieldKg }` | Sets status harvested, clears `field.currentCrop` |
 
-**Boundary requirements**
-- GeoJSON polygon coordinates must be `[longitude, latitude]` and form a closed ring (first point = last point).
-- Frontend should provide a drawing interface (Leaflet/Mapbox) that serializes to GeoJSON and enforces minimum 4 points.
-- API auto-computes `areaHectares` via planar calculation, so no manual input is needed; show the computed value once the field is saved.
-
-### 3.4 Planting Seasons (per field)
-
+### Field Activities & Photos
 | Intent | Method & Path | Body | Notes |
 | --- | --- | --- | --- |
-| Create season | `POST /fields/:fieldId/planting-seasons` | `{ cropType, plantingDate, expectedHarvestDate? }` | Rejects if PLANNED/ACTIVE season already exists |
-| List seasons | `GET /fields/:fieldId/planting-seasons` | — | Sorted newest first, `growthStage` recalculated on read |
-| Season detail | `GET /fields/:fieldId/planting-seasons/:seasonId` | — | Includes derived `growthStage` |
-| Mark harvest | `PATCH /fields/:fieldId/planting-seasons/:seasonId/harvest` | `{ actualHarvestDate, yieldKg }` | Transitions status to `harvested`, clears `field.currentCrop` |
+| Log activity | `POST /fields/:fieldId/activities` | `{ activityType, activityDate, notes?, inputProduct?, inputCostXaf?, plantingSeasonId? }` | Validates season window; auto-attach active season |
+| List activities | `GET /fields/:fieldId/activities?plantingSeasonId=` | — | Newest first |
+| Upload activity photo | `POST /fields/:fieldId/activities/:activityId/photos` | multipart `photo`, `caption?` | Image MIME only; resized/compressed |
+| List photos | `GET /fields/:fieldId/activities/:activityId/photos` | — | Desc by `takenAt` |
+| Delete photo | `DELETE /fields/:fieldId/activities/:activityId/photos/:photoId` | — | Cleans storage + DB |
 
-**Business rules surfaced to UI**
-- Only one PLANNED/ACTIVE season per field; disable the “Add season” action if one exists and show context (“Complete current season to start a new one”).
-- `growthStage` is derived from planting date + today’s date (or harvest date). Present as badges/timeline and avoid client-side recalculation to stay in sync.
-- Harvest modal must capture yield in kilograms (number >= 0). Backend stores as decimal string.
+### Weather & Alerts
+| Intent | Method & Path | Query | Notes |
+| --- | --- | --- | --- |
+| Current weather | `GET /fields/:fieldId/weather/current` | — | Fetches live reading, saves, evaluates alerts |
+| Forecast | `GET /fields/:fieldId/weather/forecast` | `days` 1–7 | Saves normalized daily forecasts |
+| List alerts | `GET /alerts` | `fieldId?, alertType?, severity?, unacknowledgedOnly?, unresolvedOnly?` | Ordered by `triggeredAt DESC` |
+| Unacknowledged badge | `GET /alerts/unacknowledged-count` | — | `{ count }` |
+| Alert detail | `GET /alerts/:id` | — | Ownership enforced |
+| Acknowledge | `PATCH /alerts/:id/acknowledge` | — | Sets `acknowledgedAt` |
+| Resolve | `PATCH /alerts/:id/resolve` | — | Sets `resolvedAt` (and ack if missing) |
+| Delete | `DELETE /alerts/:id` | — | Removes alert |
 
-### 3.5 Field Activities (per field)
+Weather alert rules: heavy rain ≥50 mm (HIGH), temperature ≤10 °C or ≥35 °C (MEDIUM/HIGH), frost ≤2 °C (HIGH); 6‑hour suppression per field/type; HIGH triggers email.
 
+### Financial Tracking
 | Intent | Method & Path | Body | Notes |
 | --- | --- | --- | --- |
-| Log activity | `POST /fields/:fieldId/activities` | `{ activityType, activityDate, notes?, inputProduct?, inputCostXaf?, plantingSeasonId? }` | If `plantingSeasonId` omitted, attaches to active season when present |
-| List activities | `GET /fields/:fieldId/activities?plantingSeasonId=` | — | Returns newest first with optional filter |
+| Record cost | `POST /fields/:fieldId/financial-records/costs` | `{ amountXaf>0, recordDate, productName?, description? }` | Stores 2‑decimal strings |
+| Record revenue | `POST /fields/:fieldId/financial-records/revenue` | `{ cropType, quantityKg>0, pricePerKgXaf>0, recordDate, description?, buyerName? }` | `amountXaf` = quantity × price |
+| List records | `GET /fields/:fieldId/financial-records?recordType&startDate&endDate` | — | Newest first |
+| Field summary | `GET /fields/:fieldId/financial-records/summary` | — | Returns totals + `profitStatus` (`profit|loss|breakeven`) |
 
-**UI hints**
-- Provide enum-driven dropdown for `activityType`.
-- Show cost column labeled “XAF” (Central African CFA franc).
-- When a field lacks an active season, prompt user to pick a season before logging to avoid backend `BadRequestException`.
-- Activity feed should show association to a season when available.
-
----
-
-## 4. Derived Data & Constraints
-
-- **Field limit:** Each plantation may host at most **5** fields (`PlantationFieldsService`). Communicate remaining slots in UI.
-- **Area calculation:** Done server-side using `field-geometry.util`. Do **not** ask users for area; display computed hectares on cards.
-- **Ownership enforcement:** Every `/fields/...` or `/plantations/...` endpoint cross-checks the authenticated owner (`FieldAccessService`). No shared access is implemented yet.
-- **Season growth stage:** Calculated with `calculateGrowthStage`. States progress automatically; front-end only reads.
-- **Auto-updated field crop:** Starting a season sets `field.currentCrop = cropType`; harvesting resets to `null`. Field detail views can rely on that to highlight “Current crop”.
-- **Activity cost precision:** Input cost is stored with 2 decimals. Always send numbers (e.g., `12500.5`)—backend converts to fixed string.
-- **File storage:** In production, avatars are mirrored to Cloudinary; locally they live under `/uploads`. Always use returned `avatarUrl`.
+### Dashboard & Analytics
+| Intent | Method & Path | Response Highlights |
+| --- | --- | --- |
+| Dashboard summary | `GET /dashboard/summary` | Totals (fields/plantations/activities/alerts), weather overview per field, recent activities (10), active alerts (10), alert stats, financial totals + per-field summary, field performance (`profitable/break-even/loss/no-data`) |
+| Reports: field performance | `GET /reports/field-performance?fieldId=` | Profit margin, profit/ha, activity counts by type, weather averages, current season snapshot |
+| Reports: seasonal summary | `GET /reports/seasonal-summary?seasonId=` | Activity timeline, input costs, harvest revenue, ROI, yield metrics |
+| Reports: weather impact | `GET /reports/weather-impact?fieldId=&startDate=&endDate=` | Weather summary, extreme events, alert breakdown, activity correlation |
+| CSV export | `GET /export/financial-records|activities|fields|planting-seasons` (+optional `fieldId`) | Streams CSV with sensible filenames via `Content-Disposition` |
 
 ---
 
-## 5. Suggested Screen Inventory
+## 4) Derived Rules & Constraints to Surface in UI
 
-1. **Auth stack:** Register, Login, Forgot/Verify Email screens with remember-me toggle and Google OAuth button.
-2. **Dashboard:** Summary of plantations, quick stats (total hectares = sum of `field.areaHectares`), CTA to add plantation/field.
-3. **Plantation Detail:** Tabs for Overview (metadata, list of fields) and maybe future Alerts/Weather placeholders.
-4. **Field Detail:** Map preview of boundary, area, soil type, `currentCrop`, latest season card, activity feed.
-5. **Season Timeline:** Table of all seasons with status badges, actions (“Mark harvest”) gated by status.
-6. **Activity Log:** Filterable list by season, expandable rows for notes/input cost.
-
-Each screen should gracefully handle empty states (no plantations, no fields, first season, etc.) because the API will return empty arrays.
-
----
-
-## 6. Implementation Notes for AI/Automation
-
-- **State hydration:** On app boot, call `/auth/me`, then `/plantations` → for each, lazily load `/fields` only when user drills in to avoid N+1 requests.
-- **Caching:** Cache reference data (crop types, activity types, season statuses) locally—they are static enums baked into the backend.
-- **Error handling:** Display `message` from error envelope. Validation errors appear under `errors.message` or `errors.message[]` depending on NestJS pipe output.
-- **Testing:** Use Swagger or Insomnia collections with the documented payloads. Remember to include `Accept: application/json`.
-- **CI/CD handoff:** Provide `.env` mapping for `APP_WEB_URL` because verification emails embed `${webUrl}/${globalPrefix}/auth/verify-email?token=...`. Frontend route should intercept `/api/auth/verify-email`.
+- **Field cap:** Max 5 fields per plantation (`PlantationFieldsService`).
+- **Season exclusivity:** One planned/active season per field; overlapping dates rejected.
+- **Activity window:** Activity dates must fall within season window; harvesting activities only when season is ACTIVE; harvested seasons reject new activities.
+- **Cost validations:** Costs/revenue must be >0; quantities/prices positive.
+- **Growth stage:** Derived server-side (`calculateGrowthStage`); display as returned.
+- **Auto crop sync:** Creating a season sets `field.currentCrop`; harvesting clears it.
+- **Alert suppression:** Same type/field suppressed for 6 hours; severity determines email sending.
+- **Image rules:** Activity photos must be image MIME; server compresses/resizes; store/display returned `photoUrl`.
+- **Area calculation:** Backend calculates hectares from polygon; client should not accept manual area input.
+- **Access control:** Single-owner model only; do not expose team sharing or role management UI.
+- **View-only for entities:** No edit/delete flows for plantations, fields, planting seasons, or activities; UI should allow creation and viewing only.
+- **Currency:** XAF-only; no localization or secondary currency display for MVP.
+- **Forecast horizon:** Allow full 7-day selection (config allows 1–7); default can match backend config.
+- **Data retention copy:** Weather history is cleaned after 30 days; note this in UI/tooltips for weather/reports.
 
 ---
 
-## 7. Known Gaps & Questions for Product
+## 5) Screen Inventory (suggested)
 
-1. **Field editing & deletion** – No endpoints exist. Should the frontend disable those actions or do we need update/delete APIs?
-2. **Season planning** – Backend supports `PlantingSeasonStatus.PLANNED` but there is no explicit API to create a planned season (only active). Do we need UI/endpoint adjustments for future planning?
-3. **Activity attachments** – Farmers often add photos/receipts, but the current schema lacks upload support. Should the UI plan for this (and we add API later) or skip entirely?
-4. **Weather/alerts placeholders** – Entities such as `WeatherData` and `Alert` exist but no controllers populate them yet. Should the frontend reserve UI real estate or hide until services land?
-5. **Currency localization** – Costs are denominated in XAF. Do we need multi-currency support or formatting toggles for pilots outside Central Africa?
+- **Auth stack:** Register/Login with remember-me + Google SSO; email verification handoff screen (consumes `token` from URL).
+- **Dashboard:** Stats tiles, financial snapshot, weather overview per field, recent activities (10), active alerts (10), quick CTA to add plantation/field/activity.
+- **Plantation detail:** Metadata + list of fields with remaining field slots indicator; no edit/delete actions.
+- **Field detail:** Map preview, computed area, soil type, current crop, latest season card, activity feed, weather mini-card, alerts badge; no edit/delete actions on the field itself.
+- **Season timeline:** Table/list of seasons with status badge, growth stage, harvest action (opens modal to capture yield/date); no edit/delete of seasons beyond harvest completion.
+- **Activity log:** Filter by season; rows show cost, notes, attachments preview; create and photo upload/delete allowed, but no edit/delete of activities themselves.
+- **Weather & alerts center:** Current/forecast tabs per field, alert list with ack/resolve controls and severity chips.
+- **Financials:** Cost/revenue entry forms (XAF), per-field summary, link to CSV export buttons.
+- **Reports & export:** Trigger report calls, show generated metrics, and provide CSV download links (hide PDF export affordance).
 
-Please confirm these before locking UI scope; responses may imply new backend tickets.
-
----
-
-## 8. Quick Reference Payloads
-
-### 8.1 Create Field
-```json
-POST /plantations/{plantationId}/fields
-{
-  "name": "Block A - North",
-  "soilType": "Loamy",
-  "boundary": {
-    "type": "Polygon",
-    "coordinates": [
-      [
-        [9.312744, 4.152969],
-        [9.314117, 4.152969],
-        [9.314117, 4.154026],
-        [9.312744, 4.154026],
-        [9.312744, 4.152969]
-      ]
-    ]
-  }
-}
-```
-
-### 8.2 Create Planting Season
-```json
-POST /fields/{fieldId}/planting-seasons
-{
-  "cropType": "coffee_robusta",
-  "plantingDate": "2025-02-01",
-  "expectedHarvestDate": "2025-08-01"
-}
-```
-
-### 8.3 Log Field Activity
-```json
-POST /fields/{fieldId}/activities
-{
-  "activityType": "fertilizer_application",
-  "activityDate": "2025-03-15",
-  "notes": "Applied organic fertilizer row 1",
-  "inputProduct": "NPK 20-10-10",
-  "inputCostXaf": 12500,
-  "plantingSeasonId": "ec0e2adc-8f6d-42b9-90e8-a50cf50f1265"
-}
-```
-
-Use these payloads as templates for fixtures, documentation snippets, or API client generation scripts.
+Empty states should guide creation (no plantations → “Create your first plantation” CTA; no seasons → “Start a planting season”).
 
 ---
 
-**Last updated:** _(auto-generated during latest code analysis)_ – Regenerate whenever backend contracts change.
+## 6) Implementation Notes for Automation
+
+- **Boot sequence:** `GET /auth/me` → `GET /plantations` → lazy-load fields when a plantation is opened; fetch dashboard summary once per session for homepage.
+- **Caching:** Store enum lists locally; they are static.
+- **Errors:** Surface `message` from error envelope; validation errors come from DTO pipes (400).
+- **Weather calls:** They persist data and may create alerts; avoid polling on every render.
+- **Files:** Pre-validate size/type client-side; show upload progress; use returned URL.
+- **Downloads:** CSV endpoints set `Content-Disposition`; handle as file downloads.
+- **Time zones:** Backend treats date strings as UTC date-only; avoid sending time components.
+- **Connectivity:** Online-only experience for now; show offline messaging and block submissions when offline.
+- **Forecast selector:** Permit 1–7 day selection; consider defaulting to backend’s `defaultForecastDays`.
+- **Weather history UX:** Add helper text that weather data older than 30 days is purged.
+
+---
+
+## 7) Open Questions / Product Decisions Needed
+
+None for now — decisions above are locked.
