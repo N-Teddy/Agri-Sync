@@ -913,10 +913,63 @@ Response: 201 Created
   "status": "success",
   "message": "Request processed successfully",
   "data": {
-    "id": "uuid",
-    "type": "COST",
-    "amountXaf": 45000,
-    "recordDate": "2025-02-12"
+    "recordType": "cost",
+    "amountXaf": "45000.00",
+    "recordDate": "2025-02-12",
+    "description": "Applied on Field Block A rows 1-3",
+    "productName": "NPK 20-10-10",
+    "field": {
+      "id": "3a273f75-3f51-4e1e-836e-e6a391180714",
+      "createdAt": "2025-12-16T21:28:46.049Z",
+      "updatedAt": "2025-12-16T21:28:46.049Z",
+      "name": "Block A - North",
+      "boundary": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [9.312744,4.152969],
+            [9.314117,4.152969],
+            [9.314117,4.154026],
+            [9.312744,4.154026],
+            [9.312744,4.152969]
+          ]
+        ]
+      },
+      "areaHectares": "1.80",
+      "soilType": "Loamy",
+      "currentCrop": null,
+      "plantation": {
+        "id": "ada07153-5dce-4d40-9180-78337b0f954a",
+        "createdAt": "2025-12-15T20:49:25.453Z",
+        "updatedAt": "2025-12-15T20:49:25.453Z",
+        "name": "Douala Farm",
+        "location": "Edea, Cameroon",
+        "region": "South",
+        "owner": {
+          "id": "760f8fa2-9f30-4dca-ac72-d72c3fb10114",
+          "createdAt": "2025-12-15T20:49:20.778Z",
+          "updatedAt": "2025-12-16T21:26:39.960Z",
+          "email": "farmer1@agrisync.test",
+          "fullName": "Farmer 1 Akoh",
+          "phoneNumber": "+237670530160",
+          "passwordHash": "$2b$10$h2L.EGD1uDOGFU3qOG6wWuqywDhZ2u/40mBhIv5v/La3cMIUMYXTq",
+          "isEmailVerified": false,
+          "emailVerificationToken": "8ec9ec4eac7fa0df885aa53070214a326dceb88dcccb53e1622203973666123a",
+          "emailVerificationExpiresAt": "2025-12-16T20:49:20.771Z",
+          "emailVerifiedAt": null,
+          "avatarUrl": null,
+          "googleId": null,
+          "refreshTokenHash": "$2b$10$9UEPEyQ75fqUU4YCNbkbT.dfKLS/9luLqiDvZXMR7PsByUl8j2LaO",
+          "refreshTokenExpiresAt": "2026-01-15T21:26:39.000Z"
+        }
+      }
+    },
+    "quantityKg": null,
+    "pricePerKgXaf": null,
+    "cropType": null,
+    "id": "f4876aff-cbe9-4523-a673-fed6750e0d05",
+    "createdAt": "2025-12-16T21:29:04.543Z",
+    "updatedAt": "2025-12-16T21:29:04.543Z"
   }
 }
 ```
@@ -942,10 +995,63 @@ Response: 201 Created
   "status": "success",
   "message": "Request processed successfully",
   "data": {
-    "id": "uuid",
-    "type": "REVENUE",
-    "amountXaf": 3750000,
-    "recordDate": "2025-09-01"
+    "recordType": "revenue",
+    "amountXaf": "3750000.00",
+    "recordDate": "2025-09-01",
+    "description": "Sold to Douala Coffee Traders",
+    "productName": "Douala Coffee Traders",
+    "quantityKg": "1500.00",
+    "pricePerKgXaf": "2500.00",
+    "cropType": "coffee_arabica",
+    "field": {
+      "id": "3a273f75-3f51-4e1e-836e-e6a391180714",
+      "createdAt": "2025-12-16T21:28:46.049Z",
+      "updatedAt": "2025-12-16T21:28:46.049Z",
+      "name": "Block A - North",
+      "boundary": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [9.312744,4.152969],
+            [9.314117,4.152969],
+            [9.314117,4.154026],
+            [9.312744,4.154026],
+            [9.312744,4.152969]
+          ]
+        ]
+      },
+      "areaHectares": "1.80",
+      "soilType": "Loamy",
+      "currentCrop": null,
+      "plantation": {
+        "id": "ada07153-5dce-4d40-9180-78337b0f954a",
+        "createdAt": "2025-12-15T20:49:25.453Z",
+        "updatedAt": "2025-12-15T20:49:25.453Z",
+        "name": "Douala Farm",
+        "location": "Edea, Cameroon",
+        "region": "South",
+        "owner": {
+          "id": "760f8fa2-9f30-4dca-ac72-d72c3fb10114",
+          "createdAt": "2025-12-15T20:49:20.778Z",
+          "updatedAt": "2025-12-16T21:26:39.960Z",
+          "email": "farmer1@agrisync.test",
+          "fullName": "Farmer 1 Akoh",
+          "phoneNumber": "+237670530160",
+          "passwordHash": "$2b$10$h2L.EGD1uDOGFU3qOG6wWuqywDhZ2u/40mBhIv5v/La3cMIUMYXTq",
+          "isEmailVerified": false,
+          "emailVerificationToken": "8ec9ec4eac7fa0df885aa53070214a326dceb88dcccb53e1622203973666123a",
+          "emailVerificationExpiresAt": "2025-12-16T20:49:20.771Z",
+          "emailVerifiedAt": null,
+          "avatarUrl": null,
+          "googleId": null,
+          "refreshTokenHash": "$2b$10$9UEPEyQ75fqUU4YCNbkbT.dfKLS/9luLqiDvZXMR7PsByUl8j2LaO",
+          "refreshTokenExpiresAt": "2026-01-15T21:26:39.000Z"
+        }
+      }
+    },
+    "id": "10b8942a-994d-4839-90d2-d99266c80db3",
+    "createdAt": "2025-12-16T21:30:30.616Z",
+    "updatedAt": "2025-12-16T21:30:30.616Z"
   }
 }
 ```
@@ -962,10 +1068,30 @@ Response: 200 OK
   "message": "Request processed successfully",
   "data": [
     {
-      "id": "uuid",
-      "type": "COST",
-      "amountXaf": 45000,
-      "recordDate": "2025-02-12"
+      "id": "10b8942a-994d-4839-90d2-d99266c80db3",
+      "createdAt": "2025-12-16T21:30:30.616Z",
+      "updatedAt": "2025-12-16T21:30:30.616Z",
+      "recordType": "revenue",
+      "amountXaf": "3750000.00",
+      "recordDate": "2025-09-01",
+      "description": "Sold to Douala Coffee Traders",
+      "productName": "Douala Coffee Traders",
+      "quantityKg": "1500.00",
+      "pricePerKgXaf": "2500.00",
+      "cropType": "coffee_arabica"
+    },
+    {
+      "id": "f4876aff-cbe9-4523-a673-fed6750e0d05",
+      "createdAt": "2025-12-16T21:29:04.543Z",
+      "updatedAt": "2025-12-16T21:29:04.543Z",
+      "recordType": "cost",
+      "amountXaf": "45000.00",
+      "recordDate": "2025-02-12",
+      "description": "Applied on Field Block A rows 1-3",
+      "productName": "NPK 20-10-10",
+      "quantityKg": null,
+      "pricePerKgXaf": null,
+      "cropType": null
     }
   ]
 }
@@ -982,9 +1108,12 @@ Response: 200 OK
   "status": "success",
   "message": "Request processed successfully",
   "data": {
-    "totalRevenue": 3750000,
-    "totalCost": 45000,
-    "netProfit": 3705000
+    "fieldId": "3a273f75-3f51-4e1e-836e-e6a391180714",
+    "fieldName": "Block A - North",
+    "totalCostsXaf": 45000,
+    "totalRevenueXaf": 3750000,
+    "profitXaf": 3705000,
+    "profitStatus": "profit"
   }
 }
 ```
@@ -1143,10 +1272,30 @@ Response: 200 OK
   "status": "success",
   "message": "Request processed successfully",
   "data": {
-    "fieldId": "uuid",
-    "totalYieldKg": 5000,
-    "totalRevenue": 12500000,
-    "totalCosts": 2000000
+    "field": {
+      "id": "3a273f75-3f51-4e1e-836e-e6a391180714",
+      "name": "Block A - North",
+      "areaHectares": "1.80",
+      "soilType": "Loamy"
+    },
+    "financials": {
+      "totalCosts": 45000,
+      "totalRevenue": 3750000,
+      "grossProfit": 3705000,
+      "profitPerHectare": 2058333.33,
+      "profitMargin": 98.8
+    },
+    "activities": {
+      "total": 0,
+      "byType": {}
+    },
+    "weather": {
+      "avgTemperature": 0,
+      "totalRainfall": 0,
+      "extremeEvents": 0,
+      "dataPoints": 0
+    },
+    "generatedAt": "2025-12-16T21:34:14.071Z"
   }
 }
 ```
@@ -1162,10 +1311,88 @@ Response: 200 OK
   "status": "success",
   "message": "Request processed successfully",
   "data": {
-    "seasonId": "uuid",
-    "cropType": "COFFEE_ROBUSTA",
-    "durationDays": 180,
-    "efficiency": 0.85
+    "season": {
+      "id": "99d9dc6a-e251-4492-b3e8-b3efd6b2b4c8",
+      "crop": "banana",
+      "plantingDate": "2025-05-15",
+      "expectedHarvestDate": "2025-09-15",
+      "status": "active",
+      "durationDays": 215
+    },
+    "field": {
+      "id": "c3bb577c-91b2-40cb-a94b-d5da1fcd76b8",
+      "name": "Field Main Road 47",
+      "areaHectares": "5.00"
+    },
+    "activities": {
+      "total": 10,
+      "byType": {
+        "planting": 5,
+        "land_preparation": 2,
+        "weeding": 1,
+        "harvesting": 1,
+        "spraying": 1
+      },
+      "timeline": [
+        {
+          "date": "2025-05-18",
+          "type": "planting",
+          "notes": "Yield care soil soil quality protect fresh harvest."
+        },
+        {
+          "date": "2025-06-18",
+          "type": "planting",
+          "notes": "Organic nourish sustainable care quality growth soil."
+        },
+        {
+          "date": "2025-06-22",
+          "type": "land_preparation",
+          "notes": "Care fresh green organic premium fresh organic nourish."
+        },
+        {
+          "date": "2025-07-02",
+          "type": "land_preparation",
+          "notes": "Growth protect protect care nourish care growth care green sustainable nourish."
+        },
+        {
+          "date": "2025-07-03",
+          "type": "planting",
+          "notes": "Yield soil care harvest harvest quality."
+        },
+        {
+          "date": "2025-07-29",
+          "type": "weeding",
+          "notes": "Yield quality sustainable yield care nourish nourish harvest growth growth fresh soil."
+        },
+        {
+          "date": "2025-08-01",
+          "type": "planting",
+          "notes": "Nourish nourish yield protect organic organic premium harvest yield protect."
+        },
+        {
+          "date": "2025-08-10",
+          "type": "planting",
+          "notes": "Fresh soil protect sustainable premium sustainable organic sustainable green growth harvest."
+        },
+        {
+          "date": "2025-08-14",
+          "type": "harvesting",
+          "notes": "Fresh protect quality care quality premium nourish premium nourish harvest organic nourish."
+        },
+        {
+          "date": "2025-08-24",
+          "type": "spraying",
+          "notes": "Green organic yield harvest green premium yield."
+        }
+      ]
+    },
+    "financials": {
+      "inputCosts": 42598,
+      "harvestRevenue": 0,
+      "netProfit": -42598,
+      "roi": -100
+    },
+    "generatedAt": "2025-12-16T21:38:10.965Z"
   }
 }
 ```
@@ -1181,9 +1408,35 @@ Response: 200 OK
   "status": "success",
   "message": "Request processed successfully",
   "data": {
-    "rainfallTotalMm": 1200,
-    "averageTemperature": 26.5,
-    "extremeWeatherEvents": 3
+    "field": {
+      "id": "3a273f75-3f51-4e1e-836e-e6a391180714",
+      "name": "Block A - North"
+    },
+    "period": {
+      "startDate": "2020-01-01",
+      "endDate": "2025-12-31"
+    },
+    "weatherSummary": {
+      "avgTemperature": 22.6,
+      "minTemperature": 22.6,
+      "maxTemperature": 22.6,
+      "totalRainfall": 0,
+      "avgHumidity": 87,
+      "extremeEvents": {
+        "heavyRain": 0,
+        "temperatureExtremes": 0,
+        "frostWarnings": 0
+      }
+    },
+    "alerts": {
+      "total": 0,
+      "bySeverity": {},
+      "byType": {}
+    },
+    "correlations": {
+      "activitiesCount": 0
+    },
+    "generatedAt": "2025-12-16T22:17:55.721Z"
   }
 }
 ```
