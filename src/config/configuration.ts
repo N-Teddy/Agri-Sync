@@ -66,7 +66,7 @@ const configuration = (): AppConfiguration => {
 			port: Number(process.env.PORT) || 3000,
 			apiVersion: process.env.API_VERSION ?? '1',
 			globalPrefix: 'api',
-			webUrl: process.env.APP_WEB_URL ?? 'http://localhost:3000',
+			webUrl: process.env.APP_WEB_URL ?? 'http://localhost:5173',
 		},
 		database: {
 			url: process.env.DATABASE_URL ?? '',

@@ -3,7 +3,9 @@ import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { SwaggerCustomOptions } from '@nestjs/swagger';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import type { NestExpressApplication } from '@nestjs/platform-express';
 import helmet from 'helmet';
+import { join } from 'path';
 
 import type { AppConfiguration } from '../../config/configuration';
 import { AllExceptionsFilter } from '../filters/http-exception.filter';
@@ -11,18 +13,36 @@ import { LoggingInterceptor } from '../interceptors/logging.interceptor';
 import { ResponseInterceptor } from '../interceptors/response.interceptor';
 
 export const configureApp = (
-	app: INestApplication
+	app: INestApplication & NestExpressApplication
 ): ConfigService<AppConfiguration> => {
 	const configService =
 		app.get<ConfigService<AppConfiguration>>(ConfigService);
 	const appConfig = configService.get<AppConfiguration['app']>('app');
+	const storageConfig =
+		configService.get<AppConfiguration['storage']>('storage');
 	const globalPrefix = appConfig?.globalPrefix ?? 'api';
 	const apiVersion = appConfig?.apiVersion ?? '1';
+	const allowedOrigins =
+		appConfig?.webUrl
+			?.split(',')
+			.map((origin) => origin.trim())
+			.filter(Boolean) ?? [];
+	const uploadsDirConfig = storageConfig?.uploadsDir ?? 'uploads';
+	const uploadsDir = uploadsDirConfig.startsWith('/')
+		? uploadsDirConfig
+		: join(process.cwd(), uploadsDirConfig);
 
 	app.setGlobalPrefix(globalPrefix);
 	app.enableVersioning({
 		type: VersioningType.URI,
 		defaultVersion: apiVersion,
+	});
+	app.enableCors({
+		origin: allowedOrigins.length > 0 ? allowedOrigins : true,
+		credentials: true,
+	});
+	app.useStaticAssets(uploadsDir, {
+		prefix: '/uploads/',
 	});
 
 	app.useGlobalPipes(
