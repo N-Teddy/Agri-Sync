@@ -1,0 +1,25 @@
+src/
+├── app.module.ts                        # Root application module
+├── main.ts                             # Application entry point
+│
+├── common/                             # Shared utilities and common code
+│   ├── constants/                      # Application constants (empty)
+│   ├── decorator/                      # Custom decorators (empty)
+│   ├── enum/                          # Enums and type definitions
+│   │   └── entity.enum.ts             # Entity-related enums (ImageEnum, NotificationEnum, OrderStatusEnum, etc.)
+│
+├── config/                            # Configuration files
+│
+├── dto/                               # Data Transfer Objects
+│   ├── request/                       # Request DTOs (empty - to be populated)
+│   └── response/                      # Response DTOs (empty - to be populated)
+│
+├── entities/                          # TypeORM entities
+│   ├── base.entity.ts                 # Base entity with common fields
+│
+├── modules/                           # Feature modules
+│   └── auth/                      # Auth  module
+│       ├── auth.controller.ts     # Auth  controller
+│       └── auth.service.ts        # Auth  service
+│
+└── seed/
