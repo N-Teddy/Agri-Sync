@@ -1,3 +1,5 @@
+import './common/utils/crypto-shim';
+
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';

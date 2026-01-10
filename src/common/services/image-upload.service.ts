@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import sharp from 'sharp';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 
 import { AppConfiguration } from '../../config/configuration';
 import { CloudinaryService } from '../third-party/cloudinary.service';
@@ -46,7 +46,7 @@ export class ImageUploadService {
 		const processedImage = await this.processImage(file.buffer, options);
 
 		// Generate unique filename
-		const filename = `${uuidv4()}.${processedImage.format}`;
+		const filename = `${randomUUID()}.${processedImage.format}`;
 
 		if (this.useCloudinary) {
 			return this.uploadToCloudinary(
