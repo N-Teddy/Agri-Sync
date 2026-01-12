@@ -112,7 +112,7 @@ export class ReportsService {
 				id: field.id,
 				name: field.name,
 				areaHectares: field.areaHectares || '0',
-				soilType: field.soilType,
+				soilType: field.soilType ?? undefined,
 			},
 			currentSeason: currentSeason
 				? {

@@ -12,6 +12,8 @@ import { ImageUploadService } from '../../common/services/image-upload.service';
 import { ActivityPhoto } from '../../entities/activity-photo.entity';
 import { FieldActivity } from '../../entities/field-activity.entity';
 import { FieldAccessService } from '../fields/field-access.service';
+import { SyncEntity } from '../sync/dto/sync.dto';
+import { SyncService } from '../sync/sync.service';
 import { UploadActivityPhotoDto } from './dto/upload-activity-photo.dto';
 
 @Injectable()
@@ -24,7 +26,8 @@ export class ActivityPhotosService {
 		@InjectRepository(FieldActivity)
 		private readonly fieldActivitiesRepository: Repository<FieldActivity>,
 		private readonly imageUploadService: ImageUploadService,
-		private readonly fieldAccessService: FieldAccessService
+		private readonly fieldAccessService: FieldAccessService,
+		private readonly syncService: SyncService
 	) {}
 
 	async uploadPhoto(
@@ -142,6 +145,11 @@ export class ActivityPhotosService {
 
 		// Delete from database
 		await this.activityPhotosRepository.remove(photo);
+		await this.syncService.recordDeletion(
+			userId,
+			SyncEntity.ACTIVITY_PHOTO,
+			photoId
+		);
 
 		this.logger.log(
 			`Photo ${photoId} deleted from activity ${activityId} by user ${userId}`

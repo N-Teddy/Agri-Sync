@@ -10,8 +10,11 @@ import { FieldActivity } from '../../entities/field-activity.entity';
 import { PlantingSeason } from '../../entities/planting-season.entity';
 import { FieldAccessService } from '../fields/field-access.service';
 import { FinancialRecordsService } from '../financial/financial-records.service';
+import { SyncEntity } from '../sync/dto/sync.dto';
+import { SyncService } from '../sync/sync.service';
 import { CreateFieldActivityDto } from './dto/create-field-activity.dto';
 import { FieldActivitiesFilterDto } from './dto/field-activities-filter.dto';
+import { UpdateFieldActivityDto } from './dto/update-field-activity.dto';
 
 const BASE_ACTIVITY_SEQUENCE: ActivityType[] = [
 	ActivityType.LAND_PREPARATION,
@@ -39,7 +42,8 @@ export class FieldActivitiesService {
 		@InjectRepository(PlantingSeason)
 		private readonly plantingSeasonsRepository: Repository<PlantingSeason>,
 		private readonly fieldAccessService: FieldAccessService,
-		private readonly financialRecordsService: FinancialRecordsService
+		private readonly financialRecordsService: FinancialRecordsService,
+		private readonly syncService: SyncService
 	) {}
 
 	async logActivity(
@@ -112,6 +116,85 @@ export class FieldActivitiesService {
 		return query.getMany();
 	}
 
+	async getActivity(
+		ownerId: string,
+		fieldId: string,
+		activityId: string
+	): Promise<FieldActivity> {
+		await this.fieldAccessService.getOwnedField(fieldId, ownerId);
+		return this.findActivityForField(fieldId, activityId);
+	}
+
+	async updateActivity(
+		ownerId: string,
+		fieldId: string,
+		activityId: string,
+		dto: UpdateFieldActivityDto
+	): Promise<FieldActivity> {
+		const field = await this.fieldAccessService.getOwnedField(
+			fieldId,
+			ownerId
+		);
+		const activity = await this.findActivityForField(field.id, activityId);
+
+		const nextActivityType = dto.activityType ?? activity.activityType;
+		const nextActivityDate = dto.activityDate
+			? normalizeDateInput(dto.activityDate)
+			: activity.activityDate;
+
+		let nextSeason = activity.plantingSeason;
+		if (dto.plantingSeasonId !== undefined) {
+			nextSeason = dto.plantingSeasonId
+				? await this.findSeasonForField(field.id, dto.plantingSeasonId)
+				: undefined;
+		}
+
+		if (nextSeason) {
+			this.validateActivityForSeason(nextSeason, nextActivityDate);
+			this.ensureActivityAllowedForCrop(nextSeason, nextActivityType);
+		}
+
+		if (dto.activityType !== undefined) {
+			activity.activityType = dto.activityType;
+		}
+		if (dto.activityDate !== undefined) {
+			activity.activityDate = nextActivityDate;
+		}
+		if (dto.notes !== undefined) {
+			activity.notes = dto.notes ?? undefined;
+		}
+		if (dto.inputProduct !== undefined) {
+			activity.inputProduct = dto.inputProduct ?? undefined;
+		}
+		if (dto.inputCostXaf !== undefined) {
+			activity.inputCostXaf =
+				dto.inputCostXaf === null
+					? undefined
+					: dto.inputCostXaf?.toFixed(2);
+		}
+		if (dto.plantingSeasonId !== undefined) {
+			activity.plantingSeason = nextSeason;
+		}
+
+		return this.fieldActivitiesRepository.save(activity);
+	}
+
+	async deleteActivity(
+		ownerId: string,
+		fieldId: string,
+		activityId: string
+	) {
+		await this.fieldAccessService.getOwnedField(fieldId, ownerId);
+		const activity = await this.findActivityForField(fieldId, activityId);
+		await this.fieldActivitiesRepository.remove(activity);
+		await this.syncService.recordDeletion(
+			ownerId,
+			SyncEntity.ACTIVITY,
+			activityId
+		);
+		return { deleted: true };
+	}
+
 	private validateActivityForSeason(
 		season: PlantingSeason,
 		activityDate: string
@@ -178,6 +261,22 @@ export class FieldActivitiesService {
 		}
 
 		return season;
+	}
+
+	private async findActivityForField(
+		fieldId: string,
+		activityId: string
+	): Promise<FieldActivity> {
+		const activity = await this.fieldActivitiesRepository.findOne({
+			where: { id: activityId, field: { id: fieldId } },
+			relations: { plantingSeason: true },
+		});
+
+		if (!activity) {
+			throw new BadRequestException('Activity not found for this field');
+		}
+
+		return activity;
 	}
 
 	private async findActiveSeason(fieldId: string) {

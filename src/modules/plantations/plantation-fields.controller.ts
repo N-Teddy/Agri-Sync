@@ -1,9 +1,11 @@
 import {
 	Body,
 	Controller,
+	Delete,
 	Get,
 	Param,
 	ParseUUIDPipe,
+	Patch,
 	Post,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -13,6 +15,7 @@ import {
 	RequestUser,
 } from '../../common/decorators/current-user.decorator';
 import { CreateFieldDto } from './dto/create-field.dto';
+import { UpdateFieldDto } from './dto/update-field.dto';
 import { PlantationFieldsService } from './plantation-fields.service';
 
 @ApiBearerAuth()
@@ -57,6 +60,34 @@ export class PlantationFieldsController {
 		@Param('fieldId', ParseUUIDPipe) fieldId: string
 	) {
 		return this.plantationFieldsService.getField(
+			user.sub,
+			plantationId,
+			fieldId
+		);
+	}
+
+	@Patch(':fieldId')
+	updateField(
+		@CurrentUser() user: RequestUser,
+		@Param('plantationId', ParseUUIDPipe) plantationId: string,
+		@Param('fieldId', ParseUUIDPipe) fieldId: string,
+		@Body() dto: UpdateFieldDto
+	) {
+		return this.plantationFieldsService.updateField(
+			user.sub,
+			plantationId,
+			fieldId,
+			dto
+		);
+	}
+
+	@Delete(':fieldId')
+	deleteField(
+		@CurrentUser() user: RequestUser,
+		@Param('plantationId', ParseUUIDPipe) plantationId: string,
+		@Param('fieldId', ParseUUIDPipe) fieldId: string
+	) {
+		return this.plantationFieldsService.deleteField(
 			user.sub,
 			plantationId,
 			fieldId

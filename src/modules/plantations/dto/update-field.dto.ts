@@ -1,22 +1,29 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString, MaxLength, Validate } from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import {
+	IsBoolean,
+	IsOptional,
+	IsString,
+	MaxLength,
+	Validate,
+} from 'class-validator';
 
 import { FieldBoundary } from '../types/field-boundary.type';
 import { GeoJsonPolygonConstraint } from './geojson-polygon.validator';
 
-export class CreateFieldDto {
-	@ApiProperty({ example: 'Block A - North' })
+export class UpdateFieldDto {
+	@ApiPropertyOptional({ example: 'Block A - North' })
+	@IsOptional()
 	@IsString()
 	@MaxLength(255)
-	name!: string;
+	name?: string;
 
 	@ApiPropertyOptional({ example: 'Loamy' })
 	@IsOptional()
 	@IsString()
 	@MaxLength(100)
-	soilType?: string;
+	soilType?: string | null;
 
-	@ApiProperty({
+	@ApiPropertyOptional({
 		description: 'GeoJSON Polygon describing the field boundary',
 		example: {
 			type: 'Polygon',
@@ -31,6 +38,12 @@ export class CreateFieldDto {
 			],
 		},
 	})
+	@IsOptional()
 	@Validate(GeoJsonPolygonConstraint)
-	boundary!: FieldBoundary;
+	boundary?: FieldBoundary;
+
+	@ApiPropertyOptional({ example: false })
+	@IsOptional()
+	@IsBoolean()
+	isArchived?: boolean;
 }

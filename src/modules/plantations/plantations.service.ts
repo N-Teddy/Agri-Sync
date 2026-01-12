@@ -4,13 +4,17 @@ import { Repository } from 'typeorm';
 
 import { Plantation } from '../../entities/plantation.entity';
 import { User } from '../../entities/user.entity';
+import { SyncEntity } from '../sync/dto/sync.dto';
+import { SyncService } from '../sync/sync.service';
 import { CreatePlantationDto } from './dto/create-plantation.dto';
+import { UpdatePlantationDto } from './dto/update-plantation.dto';
 
 @Injectable()
 export class PlantationsService {
 	constructor(
 		@InjectRepository(Plantation)
-		private readonly plantationsRepository: Repository<Plantation>
+		private readonly plantationsRepository: Repository<Plantation>,
+		private readonly syncService: SyncService
 	) {}
 
 	async create(ownerId: string, dto: CreatePlantationDto) {
@@ -30,6 +34,35 @@ export class PlantationsService {
 
 	async findOne(ownerId: string, plantationId: string) {
 		return this.getOwnedPlantation(ownerId, plantationId);
+	}
+
+	async update(
+		ownerId: string,
+		plantationId: string,
+		dto: UpdatePlantationDto
+	) {
+		const plantation = await this.getOwnedPlantation(ownerId, plantationId);
+		if (dto.name !== undefined) {
+			plantation.name = dto.name;
+		}
+		if (dto.location !== undefined) {
+			plantation.location = dto.location;
+		}
+		if (dto.region !== undefined) {
+			plantation.region = dto.region;
+		}
+		return this.plantationsRepository.save(plantation);
+	}
+
+	async remove(ownerId: string, plantationId: string) {
+		const plantation = await this.getOwnedPlantation(ownerId, plantationId);
+		await this.plantationsRepository.remove(plantation);
+		await this.syncService.recordDeletion(
+			ownerId,
+			SyncEntity.PLANTATION,
+			plantationId
+		);
+		return { deleted: true };
 	}
 
 	async getOwnedPlantation(ownerId: string, plantationId: string) {

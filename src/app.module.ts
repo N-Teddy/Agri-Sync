@@ -19,6 +19,7 @@ import { FinancialModule } from './modules/financial/financial.module';
 import { HealthModule } from './modules/health/health.module';
 import { PlantationsModule } from './modules/plantations/plantations.module';
 import { ReportsModule } from './modules/reports/reports.module';
+import { SyncModule } from './modules/sync/sync.module';
 import { WeatherModule } from './modules/weather/weather.module';
 
 @Module({
@@ -58,6 +59,7 @@ import { WeatherModule } from './modules/weather/weather.module';
 		FinancialModule,
 		DashboardModule,
 		ReportsModule,
+		SyncModule,
 		ExportModule,
 		WeatherModule,
 	],

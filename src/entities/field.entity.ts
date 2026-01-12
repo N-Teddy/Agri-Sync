@@ -42,7 +42,10 @@ export class Field extends BaseEntity {
 	areaHectares?: string;
 
 	@Column({ type: 'varchar', length: 100, nullable: true })
-	soilType?: string;
+	soilType?: string | null;
+
+	@Column({ type: 'boolean', default: false })
+	isArchived!: boolean;
 
 	@Column({
 		type: 'enum',

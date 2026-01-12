@@ -7,7 +7,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { Field } from '../../entities/field.entity';
+import { SyncEntity } from '../sync/dto/sync.dto';
+import { SyncService } from '../sync/sync.service';
 import { CreateFieldDto } from './dto/create-field.dto';
+import { UpdateFieldDto } from './dto/update-field.dto';
 import { PlantationsService } from './plantations.service';
 import { calculateFieldAreaHectares } from './utils/field-geometry.util';
 
@@ -18,7 +21,8 @@ export class PlantationFieldsService {
 	constructor(
 		@InjectRepository(Field)
 		private readonly fieldsRepository: Repository<Field>,
-		private readonly plantationsService: PlantationsService
+		private readonly plantationsService: PlantationsService,
+		private readonly syncService: SyncService
 	) {}
 
 	async createField(
@@ -41,6 +45,7 @@ export class PlantationFieldsService {
 			soilType: dto.soilType,
 			boundary: dto.boundary as unknown as Record<string, unknown>,
 			areaHectares: areaHectares.toFixed(2),
+			isArchived: false,
 		});
 
 		return this.fieldsRepository.save(field);
@@ -67,9 +72,51 @@ export class PlantationFieldsService {
 		return field;
 	}
 
+	async updateField(
+		ownerId: string,
+		plantationId: string,
+		fieldId: string,
+		dto: UpdateFieldDto
+	) {
+		const field = await this.getField(ownerId, plantationId, fieldId);
+		if (dto.isArchived === false && field.isArchived) {
+			await this.ensureFieldLimitNotReached(plantationId);
+		}
+		if (dto.name !== undefined) {
+			field.name = dto.name;
+		}
+		if (dto.soilType !== undefined) {
+			field.soilType = dto.soilType ?? null;
+		}
+		if (dto.boundary !== undefined && dto.boundary !== null) {
+			const areaHectares = calculateFieldAreaHectares(dto.boundary);
+			field.boundary = dto.boundary as unknown as Record<string, unknown>;
+			field.areaHectares = areaHectares.toFixed(2);
+		}
+		if (dto.isArchived !== undefined) {
+			field.isArchived = dto.isArchived;
+		}
+		return this.fieldsRepository.save(field);
+	}
+
+	async deleteField(
+		ownerId: string,
+		plantationId: string,
+		fieldId: string
+	) {
+		const field = await this.getField(ownerId, plantationId, fieldId);
+		await this.fieldsRepository.remove(field);
+		await this.syncService.recordDeletion(
+			ownerId,
+			SyncEntity.FIELD,
+			fieldId
+		);
+		return { deleted: true };
+	}
+
 	private async ensureFieldLimitNotReached(plantationId: string) {
 		const count = await this.fieldsRepository.count({
-			where: { plantation: { id: plantationId } },
+			where: { plantation: { id: plantationId }, isArchived: false },
 		});
 
 		if (count >= MAX_FIELDS_PER_PLANTATION) {

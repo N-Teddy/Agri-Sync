@@ -1,9 +1,11 @@
 import {
 	Body,
 	Controller,
+	Delete,
 	Get,
 	Param,
 	ParseUUIDPipe,
+	Patch,
 	Post,
 	Query,
 } from '@nestjs/common';
@@ -15,6 +17,7 @@ import {
 } from '../../common/decorators/current-user.decorator';
 import { CreateFieldActivityDto } from './dto/create-field-activity.dto';
 import { FieldActivitiesFilterDto } from './dto/field-activities-filter.dto';
+import { UpdateFieldActivityDto } from './dto/update-field-activity.dto';
 import { FieldActivitiesService } from './field-activities.service';
 
 @ApiBearerAuth()
@@ -47,6 +50,47 @@ export class FieldActivitiesController {
 			user.sub,
 			fieldId,
 			filters
+		);
+	}
+
+	@Get(':activityId')
+	getActivity(
+		@CurrentUser() user: RequestUser,
+		@Param('fieldId', ParseUUIDPipe) fieldId: string,
+		@Param('activityId', ParseUUIDPipe) activityId: string
+	) {
+		return this.fieldActivitiesService.getActivity(
+			user.sub,
+			fieldId,
+			activityId
+		);
+	}
+
+	@Patch(':activityId')
+	updateActivity(
+		@CurrentUser() user: RequestUser,
+		@Param('fieldId', ParseUUIDPipe) fieldId: string,
+		@Param('activityId', ParseUUIDPipe) activityId: string,
+		@Body() dto: UpdateFieldActivityDto
+	) {
+		return this.fieldActivitiesService.updateActivity(
+			user.sub,
+			fieldId,
+			activityId,
+			dto
+		);
+	}
+
+	@Delete(':activityId')
+	deleteActivity(
+		@CurrentUser() user: RequestUser,
+		@Param('fieldId', ParseUUIDPipe) fieldId: string,
+		@Param('activityId', ParseUUIDPipe) activityId: string
+	) {
+		return this.fieldActivitiesService.deleteActivity(
+			user.sub,
+			fieldId,
+			activityId
 		);
 	}
 }

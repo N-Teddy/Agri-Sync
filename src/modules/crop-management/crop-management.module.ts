@@ -7,6 +7,7 @@ import { FieldActivity } from '../../entities/field-activity.entity';
 import { PlantingSeason } from '../../entities/planting-season.entity';
 import { FieldsModule } from '../fields/fields.module';
 import { FinancialModule } from '../financial/financial.module';
+import { SyncModule } from '../sync/sync.module';
 import { ActivityPhotosController } from './activity-photos.controller';
 import { ActivityPhotosService } from './activity-photos.service';
 import { FieldActivitiesController } from './field-activities.controller';
@@ -24,6 +25,7 @@ import { PlantingSeasonsService } from './planting-seasons.service';
 		]),
 		FieldsModule,
 		FinancialModule,
+		SyncModule,
 	],
 	controllers: [
 		PlantingSeasonsController,
