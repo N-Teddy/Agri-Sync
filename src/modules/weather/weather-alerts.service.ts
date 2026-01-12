@@ -7,6 +7,7 @@ import { AlertType } from '../../common/enums/alert-type.enum';
 import { Alert } from '../../entities/alert.entity';
 import { Field } from '../../entities/field.entity';
 import { AlertEmailService } from '../email/alert-email.service';
+import { RealtimeGateway } from '../realtime/realtime.gateway';
 import { NormalizedWeatherReading } from './interfaces/weather-reading.interface';
 
 const ALERT_SUPPRESSION_HOURS = 6;
@@ -16,7 +17,8 @@ export class WeatherAlertsService {
 	constructor(
 		@InjectRepository(Alert)
 		private readonly alertsRepository: Repository<Alert>,
-		private readonly alertEmailService: AlertEmailService
+		private readonly alertEmailService: AlertEmailService,
+		private readonly realtimeGateway: RealtimeGateway
 	) {}
 
 	async evaluate(
@@ -141,6 +143,14 @@ export class WeatherAlertsService {
 
 		const savedAlert = await this.alertsRepository.save(alert);
 
+		const ownerId = payload.field.plantation?.owner?.id;
+		if (ownerId) {
+			this.realtimeGateway.emitAlert(
+				ownerId,
+				this.serializeAlert(savedAlert, payload.field)
+			);
+		}
+
 		// Send email notification for high severity alerts
 		if (
 			savedAlert.severity === AlertSeverity.HIGH &&
@@ -155,6 +165,32 @@ export class WeatherAlertsService {
 		}
 
 		return savedAlert;
+	}
+
+	private serializeAlert(alert: Alert, field?: Field) {
+		return {
+			id: alert.id,
+			alertType: alert.alertType,
+			severity: alert.severity,
+			title: alert.title,
+			message: alert.message,
+			triggeredAt: alert.triggeredAt,
+			acknowledgedAt: alert.acknowledgedAt ?? undefined,
+			resolvedAt: alert.resolvedAt ?? undefined,
+			metadata: alert.metadata,
+			field: field
+				? {
+						id: field.id,
+						name: field.name,
+						plantation: field.plantation
+							? {
+									id: field.plantation.id,
+									name: field.plantation.name,
+								}
+							: undefined,
+					}
+				: undefined,
+		};
 	}
 
 	private subtractHours(date: Date, hours: number) {

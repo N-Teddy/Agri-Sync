@@ -82,12 +82,20 @@ export class WeatherService {
 			ownerId
 		);
 		const { lat, lng } = this.extractCoordinates(field);
-		const apiData = await this.fetchCurrentFromProvider(lat, lng);
-		const normalized = this.normalizeCurrentWeather(apiData);
-		const observation = await this.persistReading(field, normalized);
-		await this.weatherAlertsService.evaluate(field, normalized);
+		try {
+			const apiData = await this.fetchCurrentFromProvider(lat, lng);
+			const normalized = this.normalizeCurrentWeather(apiData);
+			const observation = await this.persistReading(field, normalized);
+			await this.weatherAlertsService.evaluate(field, normalized);
 
-		return observation;
+			return observation;
+		} catch (error) {
+			const cached = await this.getLatestObservation(field);
+			if (cached) {
+				return cached;
+			}
+			return this.buildUnavailableObservation(false);
+		}
 	}
 
 	async getForecast(
@@ -102,23 +110,28 @@ export class WeatherService {
 		const { lat, lng } = this.extractCoordinates(field);
 		const forecastDays =
 			query.days ?? this.weatherConfig.defaultForecastDays;
-		const apiData = await this.fetchForecastFromProvider(lat, lng);
-		const normalizedForecast = this.normalizeForecast(
-			apiData,
-			forecastDays
-		);
+		try {
+			const apiData = await this.fetchForecastFromProvider(lat, lng);
+			const normalizedForecast = this.normalizeForecast(
+				apiData,
+				forecastDays
+			);
 
-		const saved = await Promise.all(
-			normalizedForecast.map((reading) =>
-				this.persistReading(field, reading)
-			)
-		);
-		await Promise.all(
-			normalizedForecast.map((reading) =>
-				this.weatherAlertsService.evaluate(field, reading)
-			)
-		);
-		return saved;
+			const saved = await Promise.all(
+				normalizedForecast.map((reading) =>
+					this.persistReading(field, reading)
+				)
+			);
+			await Promise.all(
+				normalizedForecast.map((reading) =>
+					this.weatherAlertsService.evaluate(field, reading)
+				)
+			);
+			return saved;
+		} catch (error) {
+			const cached = await this.getCachedForecast(field, forecastDays);
+			return cached;
+		}
 	}
 
 	private async fetchCurrentFromProvider(
@@ -279,6 +292,68 @@ export class WeatherService {
 			rainfallMm: saved.rainfallMm ? Number(saved.rainfallMm) : undefined,
 			source: saved.source ?? 'openweather',
 			isForecast: saved.isForecast,
+		};
+	}
+
+	private async getLatestObservation(
+		field: Field
+	): Promise<WeatherObservation | null> {
+		const actual = await this.weatherRepository.findOne({
+			where: { field: { id: field.id }, isForecast: false },
+			order: { recordedAt: 'DESC' },
+		});
+		if (actual) {
+			return this.toObservation(actual);
+		}
+		const fallback = await this.weatherRepository.findOne({
+			where: { field: { id: field.id } },
+			order: { recordedAt: 'DESC' },
+		});
+		return fallback ? this.toObservation(fallback) : null;
+	}
+
+	private async getCachedForecast(
+		field: Field,
+		days: number
+	): Promise<WeatherObservation[]> {
+		const readings = await this.weatherRepository.find({
+			where: { field: { id: field.id }, isForecast: true },
+			order: { recordedAt: 'DESC' },
+			take: Math.max(1, days),
+		});
+		if (!readings.length) {
+			return [];
+		}
+		return readings
+			.reverse()
+			.map((reading) => this.toObservation(reading));
+	}
+
+	private toObservation(reading: WeatherData): WeatherObservation {
+		return {
+			recordedAt: reading.recordedAt.toISOString(),
+			temperatureC: reading.temperatureC
+				? Number(reading.temperatureC)
+				: undefined,
+			humidityPercent: reading.humidityPercent
+				? Number(reading.humidityPercent)
+				: undefined,
+			rainfallMm: reading.rainfallMm
+				? Number(reading.rainfallMm)
+				: undefined,
+			source: reading.source ?? 'openweather',
+			isForecast: reading.isForecast,
+		};
+	}
+
+	private buildUnavailableObservation(isForecast: boolean): WeatherObservation {
+		return {
+			recordedAt: '',
+			temperatureC: undefined,
+			humidityPercent: undefined,
+			rainfallMm: undefined,
+			source: 'unavailable',
+			isForecast,
 		};
 	}
 

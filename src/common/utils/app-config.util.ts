@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import type { SwaggerCustomOptions } from '@nestjs/swagger';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import type { NestExpressApplication } from '@nestjs/platform-express';
+import type { Request, Response } from 'express';
 import helmet from 'helmet';
 import { join } from 'path';
 
@@ -44,6 +45,22 @@ export const configureApp = (
 	app.useStaticAssets(uploadsDir, {
 		prefix: '/uploads/',
 	});
+	const baseWebUrl = appConfig?.webUrl?.replace(/\/$/, '') ?? '';
+	const httpAdapter = app.getHttpAdapter();
+	const httpInstance = httpAdapter.getInstance();
+	if (httpInstance?.get) {
+		httpInstance.get('/', (req: Request, res: Response) => {
+			const token =
+				typeof req.query.token === 'string' ? req.query.token : undefined;
+			if (token && baseWebUrl) {
+				return res.redirect(
+					302,
+					`${baseWebUrl}/verify-email?token=${encodeURIComponent(token)}`
+				);
+			}
+			return res.status(200).json({ status: 'ok' });
+		});
+	}
 
 	app.useGlobalPipes(
 		new ValidationPipe({

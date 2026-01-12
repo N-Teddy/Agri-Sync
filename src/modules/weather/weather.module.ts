@@ -7,6 +7,7 @@ import { Field } from '../../entities/field.entity';
 import { WeatherData } from '../../entities/weather-data.entity';
 import { EmailModule } from '../email/email.module';
 import { FieldsModule } from '../fields/fields.module';
+import { RealtimeModule } from '../realtime/realtime.module';
 import { WeatherAlertsService } from './weather-alerts.service';
 import { WeatherController } from './weather.controller';
 import { WeatherCronService } from './weather-cron.service';
@@ -18,6 +19,7 @@ import { WeatherService } from './weather.service';
 		TypeOrmModule.forFeature([WeatherData, Field, Alert]),
 		EmailModule,
 		FieldsModule,
+		RealtimeModule,
 	],
 	controllers: [WeatherController],
 	providers: [WeatherService, WeatherAlertsService, WeatherCronService],

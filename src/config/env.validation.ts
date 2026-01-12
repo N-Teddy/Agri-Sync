@@ -91,7 +91,7 @@ export const validateEnv = (
 	return {
 		NODE_ENV: nodeEnvValue,
 		APP_NAME: getString('APP_NAME', 'Agri Sync Pro'),
-		APP_WEB_URL: getString('APP_WEB_URL', 'http://localhost:3000'),
+		APP_WEB_URL: getString('APP_WEB_URL', 'http://agri-sync.local:5173'),
 		PORT: getNumber('PORT', 3000),
 		API_VERSION: getString('API_VERSION', '1'),
 		DATABASE_URL: (() => {

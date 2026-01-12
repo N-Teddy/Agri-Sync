@@ -305,7 +305,7 @@ export class AuthService {
 	): Promise<void> {
 		const appConfig = this.getAppConfig();
 		const baseUrl = appConfig.webUrl.replace(/\/$/, '');
-		const verifyUrl = `${baseUrl}/${appConfig.globalPrefix}/auth/verify-email?token=${token}`;
+		const verifyUrl = `${baseUrl}/verify-email?token=${token}`;
 		const html = `
       <p>Hello,</p>
       <p>Please verify your email address to activate your Agri Sync Pro account.</p>
