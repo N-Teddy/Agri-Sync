@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsBoolean, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class UpdatePlantationDto {
 	@ApiPropertyOptional({ example: 'Mount Fako Estate' })
@@ -19,4 +19,9 @@ export class UpdatePlantationDto {
 	@IsString()
 	@MaxLength(100)
 	region?: string;
+
+	@ApiPropertyOptional({ example: false })
+	@IsOptional()
+	@IsBoolean()
+	isArchived?: boolean;
 }

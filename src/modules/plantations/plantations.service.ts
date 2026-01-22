@@ -20,6 +20,7 @@ export class PlantationsService {
 	async create(ownerId: string, dto: CreatePlantationDto) {
 		const plantation = this.plantationsRepository.create({
 			...dto,
+			isArchived: false,
 			owner: { id: ownerId } as User,
 		});
 		return this.plantationsRepository.save(plantation);
@@ -27,7 +28,7 @@ export class PlantationsService {
 
 	findAll(ownerId: string) {
 		return this.plantationsRepository.find({
-			where: { owner: { id: ownerId } },
+			where: { owner: { id: ownerId }, isArchived: false },
 			order: { createdAt: 'DESC' },
 		});
 	}
@@ -50,6 +51,9 @@ export class PlantationsService {
 		}
 		if (dto.region !== undefined) {
 			plantation.region = dto.region;
+		}
+		if (dto.isArchived !== undefined) {
+			plantation.isArchived = dto.isArchived;
 		}
 		return this.plantationsRepository.save(plantation);
 	}

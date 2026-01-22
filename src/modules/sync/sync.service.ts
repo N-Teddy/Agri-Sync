@@ -205,6 +205,7 @@ export class SyncService {
 					name: plantation.name,
 					location: plantation.location,
 					region: plantation.region,
+					isArchived: plantation.isArchived,
 					createdAt: plantation.createdAt,
 					updatedAt: plantation.updatedAt,
 				})),
@@ -339,6 +340,7 @@ export class SyncService {
 			name?: string;
 			location?: string;
 			region?: string;
+			isArchived?: boolean;
 		};
 		const plantationId = payload.id;
 
@@ -361,6 +363,7 @@ export class SyncService {
 				name: payload.name ?? 'Untitled plantation',
 				location: payload.location ?? '',
 				region: payload.region ?? '',
+				isArchived: payload.isArchived ?? false,
 				owner: { id: userId } as Plantation['owner'],
 			});
 			await this.plantationsRepository.save(plantation);
@@ -390,6 +393,9 @@ export class SyncService {
 			plantation.name = payload.name ?? plantation.name;
 			plantation.location = payload.location ?? plantation.location;
 			plantation.region = payload.region ?? plantation.region;
+			if (payload.isArchived !== undefined) {
+				plantation.isArchived = payload.isArchived;
+			}
 			await this.plantationsRepository.save(plantation);
 			return 'applied';
 		}
@@ -999,6 +1005,7 @@ export class SyncService {
 			name: plantation.name,
 			location: plantation.location,
 			region: plantation.region,
+			isArchived: plantation.isArchived,
 			updatedAt: plantation.updatedAt,
 		};
 	}
