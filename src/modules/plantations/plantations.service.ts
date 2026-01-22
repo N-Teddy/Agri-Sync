@@ -15,7 +15,7 @@ export class PlantationsService {
 		@InjectRepository(Plantation)
 		private readonly plantationsRepository: Repository<Plantation>,
 		private readonly syncService: SyncService
-	) {}
+	) { }
 
 	async create(ownerId: string, dto: CreatePlantationDto) {
 		const plantation = this.plantationsRepository.create({
@@ -29,6 +29,7 @@ export class PlantationsService {
 	findAll(ownerId: string) {
 		return this.plantationsRepository.find({
 			where: { owner: { id: ownerId }, isArchived: false },
+			relations: ['fields'],
 			order: { createdAt: 'DESC' },
 		});
 	}
