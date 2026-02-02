@@ -4,14 +4,14 @@
     "buildCommand": "pnpm run build",
     "builds": [
         {
-            "src": "src/main.ts",
+            "src": "src/vercel.ts",
             "use": "@vercel/node"
         }
     ],
     "routes": [
         {
             "src": "/(.*)",
-            "dest": "src/main.ts",
+            "dest": "src/vercel.ts",
             "methods": [
                 "GET",
                 "POST",
