@@ -9,7 +9,11 @@ import { FieldBoundary } from '../types/field-boundary.type';
 @ValidatorConstraint({ name: 'GeoJsonPolygon', async: false })
 export class GeoJsonPolygonConstraint implements ValidatorConstraintInterface {
 	validate(value: FieldBoundary) {
-		if (!value || value.type !== 'Polygon' || !Array.isArray(value.coordinates)) {
+		if (
+			!value ||
+			value.type !== 'Polygon' ||
+			!Array.isArray(value.coordinates)
+		) {
 			return false;
 		}
 

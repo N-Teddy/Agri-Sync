@@ -99,11 +99,7 @@ export class PlantationFieldsService {
 		return this.fieldsRepository.save(field);
 	}
 
-	async deleteField(
-		ownerId: string,
-		plantationId: string,
-		fieldId: string
-	) {
+	async deleteField(ownerId: string, plantationId: string, fieldId: string) {
 		const field = await this.getField(ownerId, plantationId, fieldId);
 		await this.fieldsRepository.remove(field);
 		await this.syncService.recordDeletion(

@@ -10,11 +10,7 @@ import { Plantation } from '../../entities/plantation.entity';
 import { PlantingSeason } from '../../entities/planting-season.entity';
 import { ActivityPhoto } from '../../entities/activity-photo.entity';
 import { SyncTombstone } from '../../entities/sync-tombstone.entity';
-import {
-	SyncEntity,
-	SyncOperation,
-	SyncOperationDto,
-} from './dto/sync.dto';
+import { SyncEntity, SyncOperation, SyncOperationDto } from './dto/sync.dto';
 
 const CROP_TYPE_VALUES = new Set(Object.values(CropType));
 
@@ -128,7 +124,9 @@ export class SyncService {
 					clientUpdatedAt: operation.clientUpdatedAt,
 					payload: operation.payload,
 					reason:
-						error instanceof Error ? error.message : 'Unable to apply change',
+						error instanceof Error
+							? error.message
+							: 'Unable to apply change',
 				});
 			}
 		}
@@ -346,7 +344,11 @@ export class SyncService {
 
 		if (operation.operation === SyncOperation.CREATE) {
 			if (!plantationId) {
-				return this.buildConflict(operation, {}, 'Missing plantation id');
+				return this.buildConflict(
+					operation,
+					{},
+					'Missing plantation id'
+				);
 			}
 			const existing = await this.plantationsRepository.findOne({
 				where: { id: plantationId },
@@ -402,7 +404,11 @@ export class SyncService {
 
 		if (operation.operation === SyncOperation.DELETE) {
 			await this.plantationsRepository.remove(plantation);
-			await this.recordDeletion(userId, SyncEntity.PLANTATION, plantationId);
+			await this.recordDeletion(
+				userId,
+				SyncEntity.PLANTATION,
+				plantationId
+			);
 			return 'applied';
 		}
 
@@ -431,7 +437,11 @@ export class SyncService {
 
 		if (operation.operation === SyncOperation.CREATE) {
 			if (!fieldId || !payload.plantationId) {
-				return this.buildConflict(operation, {}, 'Missing field identifiers');
+				return this.buildConflict(
+					operation,
+					{},
+					'Missing field identifiers'
+				);
 			}
 			if (isInvalidCropType(payload.currentCrop)) {
 				return this.buildConflict(
@@ -454,12 +464,19 @@ export class SyncService {
 				where: { id: payload.plantationId, owner: { id: userId } },
 			});
 			if (!plantation) {
-				return this.buildConflict(operation, {}, 'Plantation not found');
+				return this.buildConflict(
+					operation,
+					{},
+					'Plantation not found'
+				);
 			}
 			const field = this.fieldsRepository.create({
 				id: fieldId,
 				name: payload.name ?? 'Untitled field',
-				soilType: payload.soilType !== undefined ? payload.soilType : undefined,
+				soilType:
+					payload.soilType !== undefined
+						? payload.soilType
+						: undefined,
 				boundary: payload.boundary,
 				isArchived: payload.isArchived ?? false,
 				currentCrop: normalizedCurrentCrop,
@@ -503,11 +520,15 @@ export class SyncService {
 			}
 			field.name = payload.name ?? field.name;
 			field.soilType =
-				payload.soilType !== undefined ? payload.soilType : field.soilType;
+				payload.soilType !== undefined
+					? payload.soilType
+					: field.soilType;
 			field.boundary = payload.boundary ?? field.boundary;
-			field.isArchived =
-				payload.isArchived ?? field.isArchived ?? false;
-			if (payload.currentCrop !== undefined && payload.currentCrop !== '') {
+			field.isArchived = payload.isArchived ?? field.isArchived ?? false;
+			if (
+				payload.currentCrop !== undefined &&
+				payload.currentCrop !== ''
+			) {
 				field.currentCrop = normalizedCurrentCrop;
 			}
 			await this.fieldsRepository.save(field);
@@ -546,7 +567,11 @@ export class SyncService {
 
 		if (operation.operation === SyncOperation.CREATE) {
 			if (!seasonId || !payload.fieldId) {
-				return this.buildConflict(operation, {}, 'Missing season identifiers');
+				return this.buildConflict(
+					operation,
+					{},
+					'Missing season identifiers'
+				);
 			}
 			const existing = await this.seasonsRepository.findOne({
 				where: { id: seasonId },
@@ -612,7 +637,8 @@ export class SyncService {
 		}
 
 		if (operation.operation === SyncOperation.UPDATE) {
-			season.cropType = (payload.cropType as PlantingSeason['cropType']) ??
+			season.cropType =
+				(payload.cropType as PlantingSeason['cropType']) ??
 				season.cropType;
 			season.plantingDate = payload.plantingDate ?? season.plantingDate;
 			season.expectedHarvestDate =
@@ -632,7 +658,11 @@ export class SyncService {
 
 		if (operation.operation === SyncOperation.DELETE) {
 			await this.seasonsRepository.remove(season);
-			await this.recordDeletion(userId, SyncEntity.PLANTING_SEASON, seasonId);
+			await this.recordDeletion(
+				userId,
+				SyncEntity.PLANTING_SEASON,
+				seasonId
+			);
 			return 'applied';
 		}
 
@@ -661,7 +691,11 @@ export class SyncService {
 
 		if (operation.operation === SyncOperation.CREATE) {
 			if (!activityId || !payload.fieldId) {
-				return this.buildConflict(operation, {}, 'Missing activity identifiers');
+				return this.buildConflict(
+					operation,
+					{},
+					'Missing activity identifiers'
+				);
 			}
 			const existing = await this.activitiesRepository.findOne({
 				where: { id: activityId },
@@ -692,7 +726,8 @@ export class SyncService {
 				id: activityId,
 				field,
 				plantingSeason: plantingSeason ?? undefined,
-				activityType: payload.activityType as FieldActivity['activityType'],
+				activityType:
+					payload.activityType as FieldActivity['activityType'],
 				activityDate: payload.activityDate ?? '',
 				notes: payload.notes,
 				inputProduct: payload.inputProduct,
@@ -734,9 +769,11 @@ export class SyncService {
 			activity.activityType =
 				(payload.activityType as FieldActivity['activityType']) ??
 				activity.activityType;
-			activity.activityDate = payload.activityDate ?? activity.activityDate;
+			activity.activityDate =
+				payload.activityDate ?? activity.activityDate;
 			activity.notes = payload.notes ?? activity.notes;
-			activity.inputProduct = payload.inputProduct ?? activity.inputProduct;
+			activity.inputProduct =
+				payload.inputProduct ?? activity.inputProduct;
 			activity.inputCostXaf =
 				payload.inputCostXaf !== undefined
 					? String(payload.inputCostXaf)
@@ -786,7 +823,11 @@ export class SyncService {
 
 		if (operation.operation === SyncOperation.CREATE) {
 			if (!recordId || !payload.fieldId) {
-				return this.buildConflict(operation, {}, 'Missing financial record id');
+				return this.buildConflict(
+					operation,
+					{},
+					'Missing financial record id'
+				);
 			}
 			const existing = await this.financialRepository.findOne({
 				where: { id: recordId },
@@ -834,7 +875,11 @@ export class SyncService {
 		}
 
 		if (!recordId) {
-			return this.buildConflict(operation, {}, 'Missing financial record id');
+			return this.buildConflict(
+				operation,
+				{},
+				'Missing financial record id'
+			);
 		}
 
 		const record = await this.financialRepository
@@ -847,7 +892,11 @@ export class SyncService {
 			.getOne();
 
 		if (!record) {
-			return this.buildConflict(operation, {}, 'Financial record not found');
+			return this.buildConflict(
+				operation,
+				{},
+				'Financial record not found'
+			);
 		}
 
 		if (this.isConflict(record.updatedAt, operation.clientUpdatedAt)) {
@@ -875,7 +924,8 @@ export class SyncService {
 					? String(payload.pricePerKgXaf)
 					: record.pricePerKgXaf;
 			record.cropType =
-				(payload.cropType as FinancialRecord['cropType']) ?? record.cropType;
+				(payload.cropType as FinancialRecord['cropType']) ??
+				record.cropType;
 			await this.financialRepository.save(record);
 			return 'applied';
 		}
@@ -916,7 +966,11 @@ export class SyncService {
 
 		if (operation.operation === SyncOperation.CREATE) {
 			if (!photoId || !payload.activityId || !payload.photoUrl) {
-				return this.buildConflict(operation, {}, 'Missing photo identifiers');
+				return this.buildConflict(
+					operation,
+					{},
+					'Missing photo identifiers'
+				);
 			}
 			const existing = await this.photosRepository.findOne({
 				where: { id: photoId },
@@ -948,7 +1002,9 @@ export class SyncService {
 				width: payload.width,
 				height: payload.height,
 				fileSize: payload.fileSize,
-				takenAt: payload.takenAt ? new Date(payload.takenAt) : undefined,
+				takenAt: payload.takenAt
+					? new Date(payload.takenAt)
+					: undefined,
 			});
 			await this.photosRepository.save(photo);
 			return 'applied';
@@ -988,7 +1044,11 @@ export class SyncService {
 
 		if (operation.operation === SyncOperation.DELETE) {
 			await this.photosRepository.remove(photo);
-			await this.recordDeletion(userId, SyncEntity.ACTIVITY_PHOTO, photoId);
+			await this.recordDeletion(
+				userId,
+				SyncEntity.ACTIVITY_PHOTO,
+				photoId
+			);
 			return 'applied';
 		}
 

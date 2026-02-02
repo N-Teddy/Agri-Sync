@@ -23,7 +23,9 @@ interface JwtPayload {
 		credentials: true,
 	},
 })
-export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class RealtimeGateway
+	implements OnGatewayConnection, OnGatewayDisconnect
+{
 	@WebSocketServer()
 	private readonly server!: Server;
 
@@ -44,10 +46,14 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
 		}
 
 		try {
-			const jwtConfig = this.configService.get<AppConfiguration['jwt']>('jwt');
-			const payload = await this.jwtService.verifyAsync<JwtPayload>(token, {
-				secret: jwtConfig?.secret,
-			});
+			const jwtConfig =
+				this.configService.get<AppConfiguration['jwt']>('jwt');
+			const payload = await this.jwtService.verifyAsync<JwtPayload>(
+				token,
+				{
+					secret: jwtConfig?.secret,
+				}
+			);
 			if (!payload?.sub) {
 				throw new Error('Token missing subject');
 			}

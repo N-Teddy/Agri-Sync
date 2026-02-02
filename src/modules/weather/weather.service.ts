@@ -324,9 +324,7 @@ export class WeatherService {
 		if (!readings.length) {
 			return [];
 		}
-		return readings
-			.reverse()
-			.map((reading) => this.toObservation(reading));
+		return readings.reverse().map((reading) => this.toObservation(reading));
 	}
 
 	private toObservation(reading: WeatherData): WeatherObservation {
@@ -346,7 +344,9 @@ export class WeatherService {
 		};
 	}
 
-	private buildUnavailableObservation(isForecast: boolean): WeatherObservation {
+	private buildUnavailableObservation(
+		isForecast: boolean
+	): WeatherObservation {
 		return {
 			recordedAt: '',
 			temperatureC: undefined,

@@ -14,7 +14,7 @@ export class WeatherCronService {
 		@InjectRepository(Field)
 		private readonly fieldRepository: Repository<Field>,
 		private readonly weatherService: WeatherService
-	) { }
+	) {}
 
 	/**
 	 * Fetch weather data for all active fields every 3 hours

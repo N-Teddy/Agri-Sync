@@ -179,11 +179,7 @@ export class FieldActivitiesService {
 		return this.fieldActivitiesRepository.save(activity);
 	}
 
-	async deleteActivity(
-		ownerId: string,
-		fieldId: string,
-		activityId: string
-	) {
+	async deleteActivity(ownerId: string, fieldId: string, activityId: string) {
 		await this.fieldAccessService.getOwnedField(fieldId, ownerId);
 		const activity = await this.findActivityForField(fieldId, activityId);
 		await this.fieldActivitiesRepository.remove(activity);

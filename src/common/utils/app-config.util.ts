@@ -51,7 +51,9 @@ export const configureApp = (
 	if (httpInstance?.get) {
 		httpInstance.get('/', (req: Request, res: Response) => {
 			const token =
-				typeof req.query.token === 'string' ? req.query.token : undefined;
+				typeof req.query.token === 'string'
+					? req.query.token
+					: undefined;
 			if (token && baseWebUrl) {
 				return res.redirect(
 					302,

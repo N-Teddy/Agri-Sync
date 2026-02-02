@@ -15,7 +15,7 @@ export class PlantationsService {
 		@InjectRepository(Plantation)
 		private readonly plantationsRepository: Repository<Plantation>,
 		private readonly syncService: SyncService
-	) { }
+	) {}
 
 	async create(ownerId: string, dto: CreatePlantationDto) {
 		const plantation = this.plantationsRepository.create({

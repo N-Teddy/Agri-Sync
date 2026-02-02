@@ -11,18 +11,18 @@ const expressApp = express();
 let app: NestExpressApplication;
 
 const bootstrap = async () => {
-    if (!app) {
-        app = await NestFactory.create<NestExpressApplication>(
-            AppModule,
-            new ExpressAdapter(expressApp),
-        );
-        configureApp(app);
-        await app.init();
-    }
-    return app;
+	if (!app) {
+		app = await NestFactory.create<NestExpressApplication>(
+			AppModule,
+			new ExpressAdapter(expressApp)
+		);
+		configureApp(app);
+		await app.init();
+	}
+	return app;
 };
 
 export default async function (req: any, res: any) {
-    await bootstrap();
-    expressApp(req, res);
+	await bootstrap();
+	expressApp(req, res);
 }

@@ -17,8 +17,7 @@ import { RealtimeGateway } from './realtime.gateway';
 				if (!jwtConfig) {
 					throw new Error('JWT configuration missing');
 				}
-				const expiresIn =
-					jwtConfig.expiresIn as JwtSignOptions['expiresIn'];
+				const expiresIn = jwtConfig.expiresIn as any;
 				return {
 					secret: jwtConfig.secret,
 					signOptions: {
@@ -31,4 +30,4 @@ import { RealtimeGateway } from './realtime.gateway';
 	providers: [RealtimeGateway],
 	exports: [RealtimeGateway],
 })
-export class RealtimeModule {}
+export class RealtimeModule { }

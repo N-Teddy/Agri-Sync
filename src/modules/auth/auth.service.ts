@@ -47,7 +47,7 @@ export class AuthService {
 		private readonly googleAuthService: GoogleAuthService,
 		private readonly cloudinaryService: CloudinaryService,
 		private readonly localStorageService: LocalStorageService
-	) {}
+	) { }
 
 	async register(payload: RegisterDto): Promise<AuthResponse> {
 		const existingUser = await this.usersService.findByEmail(
@@ -258,7 +258,7 @@ export class AuthService {
 
 		const payload = { sub: user.id, email: user.email };
 		const accessToken = await this.jwtService.signAsync(payload, {
-			expiresIn: jwtConfig.expiresIn as JwtSignOptions['expiresIn'],
+			expiresIn: jwtConfig.expiresIn as any,
 			secret: jwtConfig.secret,
 		});
 
@@ -269,7 +269,7 @@ export class AuthService {
 		const refreshToken = await this.jwtService.signAsync(refreshPayload, {
 			expiresIn: (rememberMe
 				? jwtConfig.rememberMeRefreshExpiresIn
-				: jwtConfig.refreshExpiresIn) as JwtSignOptions['expiresIn'],
+				: jwtConfig.refreshExpiresIn) as any,
 			secret: jwtConfig.refreshSecret,
 		});
 
